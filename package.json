@@ -1,0 +1,26 @@
+{
+  "name": "tienda-fotosalberth",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tienda virtual y catálogo web para FOTOSALBERTH: sincronizado con VPS, carrito interactivo y pedidos por WhatsApp a $0 costo en Cloudflare.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "@tailwindcss/vite": "^4.0.9",
+    "astro": "^5.4.2",
+    "tailwindcss": "^4.0.9"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.7"
+  }
+}

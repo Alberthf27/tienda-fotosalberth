@@ -1,0 +1,119 @@
+---
+import type { ProductoCatalogo } from '../lib/catalogo/tipos';
+
+interface Props {
+  producto: ProductoCatalogo;
+  simbolo?: string;
+}
+
+const { producto, simbolo = 'S/' } = Astro.props;
+const tieneStock = producto.stock > 0 && producto.disponible;
+const imagenPrincipal = producto.fotos[0] || 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80';
+const tieneOferta = producto.precio_anterior && producto.precio_anterior > producto.precio;
+---
+
+<article
+  class="group relative flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 tarjeta-producto"
+  data-id={producto.id}
+  data-categoria-id={producto.categoria_id}
+  data-nombre={producto.nombre.toLowerCase()}
+  data-sku={producto.sku.toLowerCase()}
+>
+  <!-- Imagen del Producto -->
+  <a href={`/producto/${producto.slug}`} class="block relative aspect-4/3 overflow-hidden bg-slate-100">
+    <img
+      src={imagenPrincipal}
+      alt={producto.nombre}
+      loading="lazy"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+    />
+
+    <!-- Badge de Agotado -->
+    {!tieneStock && (
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center">
+        <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
+          Agotado
+        </span>
+      </div>
+    )}
+
+    <!-- Badge de Oferta -->
+    {tieneStock && tieneOferta && (
+      <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-500 text-white shadow-sm">
+        Oferta
+      </span>
+    )}
+
+    <!-- Categoría Chip -->
+    <span class="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-white/90 backdrop-blur-xs text-slate-700 shadow-xs">
+      {producto.categoria}
+    </span>
+  </a>
+
+  <!-- Contenido -->
+  <div class="flex-1 p-4 flex flex-col justify-between gap-3">
+    <div>
+      <div class="text-[11px] font-mono text-slate-400 mb-1">
+        SKU: {producto.sku || 'N/A'}
+      </div>
+      <h3 class="font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-sky-600 transition-colors">
+        <a href={`/producto/${producto.slug}`} class="focus:outline-hidden">
+          {producto.nombre}
+        </a>
+      </h3>
+    </div>
+
+    <!-- Precios y Acción -->
+    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+      <div>
+        <div class="flex items-baseline gap-1.5">
+          <span class="text-lg font-black text-slate-900 tracking-tight">
+            {simbolo} {producto.precio.toFixed(2)}
+          </span>
+          {tieneOferta && (
+            <span class="text-xs text-slate-400 line-through">
+              {simbolo} {producto.precio_anterior?.toFixed(2)}
+            </span>
+          )}
+        </div>
+        <span class="text-[11px] text-slate-500 block">
+          {tieneStock ? `${producto.stock} disponibles` : 'Sin stock'}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        disabled={!tieneStock}
+        data-btn-agregar
+        data-producto={JSON.stringify({
+          id: producto.id,
+          sku: producto.sku,
+          nombre: producto.nombre,
+          slug: producto.slug,
+          precio: producto.precio,
+          stock: producto.stock,
+          foto: imagenPrincipal,
+          categoria: producto.categoria,
+          disponible: producto.disponible
+        })}
+        class={`inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold transition-all focus:outline-hidden ${
+          tieneStock
+            ? 'bg-sky-600 hover:bg-sky-700 text-white shadow-sm hover:shadow-md cursor-pointer active:scale-95'
+            : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+        }`}
+      >
+        {tieneStock ? (
+          <>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Agregar
+          </>
+        ) : (
+          'Agotado'
+        )}
+      </button>
+    </div>
+  </div>
+</article>

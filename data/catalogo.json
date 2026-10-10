@@ -1,0 +1,208 @@
+{
+  "ok": true,
+  "tienda": {
+    "nombre": "FOTOSALBERTH",
+    "rubro": "Fotografía, Cuadros y Papelería",
+    "telefono_whatsapp": "51999999999",
+    "moneda": "PEN",
+    "simbolo": "S/",
+    "ciudad": "Trujillo",
+    "cobertura": "Envíos a todo el país y recojo en tienda"
+  },
+  "categorias": [
+    {
+      "id": 1,
+      "nombre": "Fotografía e Impresiones",
+      "slug": "fotografia-e-impresiones",
+      "total_productos": 3
+    },
+    {
+      "id": 2,
+      "nombre": "Cuadros y Marcos",
+      "slug": "cuadros-y-marcos",
+      "total_productos": 3
+    },
+    {
+      "id": 3,
+      "nombre": "Álbumes y Accesorios",
+      "slug": "albumes-y-accesorios",
+      "total_productos": 2
+    }
+  ],
+  "productos": [
+    {
+      "id": 101,
+      "sku": "CUAD-20X30",
+      "nombre": "Cuadro Personalizado 20x30 cm",
+      "slug": "cuadro-personalizado-20x30-cm-101",
+      "categoria": "Cuadros y Marcos",
+      "categoria_id": 2,
+      "familia": "Cuadros de Madera",
+      "precio": 35.0,
+      "precio_anterior": 45.0,
+      "stock": 14,
+      "disponible": true,
+      "descripcion": "Marco de madera selecta con vidrio antireflejo y foto en alta definición profesional.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Medidas": "20 x 30 cm",
+        "Material": "Madera y vidrio",
+        "Acabado": "Mate antirreflejo"
+      }
+    },
+    {
+      "id": 102,
+      "sku": "CUAD-30X40",
+      "nombre": "Cuadro Familiar 30x40 cm",
+      "slug": "cuadro-familiar-30x40-cm-102",
+      "categoria": "Cuadros y Marcos",
+      "categoria_id": 2,
+      "familia": "Cuadros de Madera",
+      "precio": 55.0,
+      "precio_anterior": 70.0,
+      "stock": 8,
+      "disponible": true,
+      "descripcion": "Cuadro de gran formato para fotos familiares y momentos especiales, listo para colgar.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Medidas": "30 x 40 cm",
+        "Material": "Madera laqueada",
+        "Incluye": "Soporte para pared"
+      }
+    },
+    {
+      "id": 103,
+      "sku": "CUAD-MINI",
+      "nombre": "Portarretratos de Escritorio 15x20",
+      "slug": "portarretratos-de-escritorio-15x20-103",
+      "categoria": "Cuadros y Marcos",
+      "categoria_id": 2,
+      "familia": "Portarretratos",
+      "precio": 22.0,
+      "precio_anterior": null,
+      "stock": 0,
+      "disponible": false,
+      "descripcion": "Marco elegante con base trasera abatible para colocar en escritorio o mesa de noche.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Medidas": "15 x 20 cm",
+        "Uso": "Mesa / Escritorio"
+      }
+    },
+    {
+      "id": 104,
+      "sku": "FOT-PACK50",
+      "nombre": "Pack 50 Fotos Impresas 10x15 cm",
+      "slug": "pack-50-fotos-impresas-10x15-cm-104",
+      "categoria": "Fotografía e Impresiones",
+      "categoria_id": 1,
+      "familia": "Impresiones Fotográficas",
+      "precio": 30.0,
+      "precio_anterior": 40.0,
+      "stock": 50,
+      "disponible": true,
+      "descripcion": "Impresión química en papel fotográfico profesional de alta durabilidad sin decoloración.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Cantidad": "50 fotografías",
+        "Papel": "Fotográfico Brillante o Mate",
+        "Tamaño": "10 x 15 cm"
+      }
+    },
+    {
+      "id": 105,
+      "sku": "FOT-AMPLI",
+      "nombre": "Ampliación Fotográfica Poster 40x60 cm",
+      "slug": "ampliacion-fotografica-poster-40x60-cm-105",
+      "categoria": "Fotografía e Impresiones",
+      "categoria_id": 1,
+      "familia": "Impresiones Fotográficas",
+      "precio": 45.0,
+      "precio_anterior": null,
+      "stock": 20,
+      "disponible": true,
+      "descripcion": "Póster fotográfico de gran nitidez y fidelidad de color, ideal para bodas, graduaciones o eventos.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Medidas": "40 x 60 cm",
+        "Tecnología": "Fine Art Plotter HD"
+      }
+    },
+    {
+      "id": 106,
+      "sku": "FOT-POLAROID",
+      "nombre": "Set 20 Fotos Estilo Polaroid",
+      "slug": "set-20-fotos-estilo-polaroid-106",
+      "categoria": "Fotografía e Impresiones",
+      "categoria_id": 1,
+      "familia": "Impresiones Fotográficas",
+      "precio": 18.0,
+      "precio_anterior": 24.0,
+      "stock": 35,
+      "disponible": true,
+      "descripcion": "Fotos vintage cuadradas con marco blanco para recuerdos, regalos o decoración con luces led.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Cantidad": "20 fotos",
+        "Estilo": "Polaroid Retro"
+      }
+    },
+    {
+      "id": 107,
+      "sku": "ALB-CUERO",
+      "nombre": "Álbum de Fotos Cuero Artesanal 100 Páginas",
+      "slug": "album-de-fotos-cuero-artesanal-107",
+      "categoria": "Álbumes y Accesorios",
+      "categoria_id": 3,
+      "familia": "Álbumes",
+      "precio": 65.0,
+      "precio_anterior": 80.0,
+      "stock": 6,
+      "disponible": true,
+      "descripcion": "Álbum empastado en fino cuero sintético con hojas protectoras para guardar recuerdos de por vida.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Capacidad": "Hasta 200 fotos 10x15",
+        "Páginas": "100 páginas",
+        "Acabado": "Cuero clásico"
+      }
+    },
+    {
+      "id": 108,
+      "sku": "ALB-MINI",
+      "nombre": "Mini Álbum de Bolsillo para Fotos",
+      "slug": "mini-album-de-bolsillo-108",
+      "categoria": "Álbumes y Accesorios",
+      "categoria_id": 3,
+      "familia": "Álbumes",
+      "precio": 14.0,
+      "precio_anterior": null,
+      "stock": 0,
+      "disponible": false,
+      "descripcion": "Álbum compacto y portátil para llevar fotos en la cartera o mochila.",
+      "fotos": [
+        "https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specs": {
+        "Capacidad": "36 fotos",
+        "Tamaño": "Bolsillo"
+      }
+    }
+  ],
+  "total_productos": 8,
+  "generado_en": "2026-10-09T23:00:00.000Z"
+}

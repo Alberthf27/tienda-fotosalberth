@@ -1,0 +1,13 @@
+name = "tienda-fotosalberth"
+compatibility_date = "2026-10-01"
+
+# Servir como Static Assets para costo $0 y ancho de banda ilimitado
+[assets]
+directory = "./dist"
+not_found_handling = "404-page"
+
+[build]
+command = "npm run build"
+
+[observability]
+enabled = true

@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { obtenerCatalogo } from '../lib/catalogo/snapshot';
+
+const catalogo = await obtenerCatalogo();
+const { tienda } = catalogo;
+---
+
+<Layout title="Página no encontrada (404)" tienda={tienda}>
+  <div class="py-24 text-center max-w-md mx-auto space-y-4">
+    <div class="w-20 h-20 mx-auto rounded-3xl bg-sky-50 text-sky-600 flex items-center justify-center font-black text-2xl shadow-inner">
+      404
+    </div>
+    <h1 class="text-2xl font-black text-slate-900 tracking-tight">Página no encontrada</h1>
+    <p class="text-sm text-slate-500">
+      El producto o la sección que buscas ya no está disponible o el enlace ha cambiado.
+    </p>
+    <div class="pt-4">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all"
+      >
+        Volver al Catálogo
+      </a>
+    </div>
+  </div>
+</Layout>

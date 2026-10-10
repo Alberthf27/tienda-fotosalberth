@@ -1,0 +1,47 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import CartDrawer from '../components/CartDrawer.astro';
+import type { InfoTienda } from '../lib/catalogo/tipos';
+
+interface Props {
+  title: string;
+  description?: string;
+  tienda: InfoTienda;
+}
+
+const { title, description = 'Catálogo virtual y pedidos por WhatsApp', tienda } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | {tienda.nombre}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={`${title} | ${tienda.nombre}`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0284c7" />
+  </head>
+  <body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-sky-200">
+    <Header tienda={tienda} />
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <slot />
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-center text-sm text-slate-500">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
+        <p class="font-bold text-slate-700 tracking-wide">{tienda.nombre} — {tienda.rubro}</p>
+        <p>{tienda.ciudad} • {tienda.cobertura}</p>
+        <p class="text-xs text-slate-400">Pedidos directos a WhatsApp sin comisiones ni intermediarios.</p>
+      </div>
+    </footer>
+
+    <!-- Carrito Lateral Deslizable -->
+    <CartDrawer tienda={tienda} />
+  </body>
+</html>

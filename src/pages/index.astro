@@ -1,0 +1,178 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { obtenerCatalogo } from '../lib/catalogo/snapshot';
+
+const catalogo = await obtenerCatalogo();
+const { tienda, categorias, productos } = catalogo;
+---
+
+<Layout
+  title="Catálogo Virtual y Tienda Online"
+  description={`Catálogo de fotos, marcos y cuadros en ${tienda.ciudad}. Pide directo por WhatsApp sin costos extra.`}
+  tienda={tienda}
+>
+  <!-- Barra de aviso superior -->
+  <div class="mb-6 p-3 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-between gap-3 text-xs text-sky-800 shadow-2xs">
+    <div class="flex items-center gap-2 font-medium">
+      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-200/70 text-sky-700 font-bold">✓</span>
+      <span>Precios oficiales sincronizados con nuestro taller. Recojo en tienda o envíos a todo el país.</span>
+    </div>
+    <span class="hidden sm:inline font-bold uppercase tracking-wider text-[10px] text-sky-600 bg-white px-2.5 py-1 rounded-full border border-sky-200">
+      WhatsApp Directo
+    </span>
+  </div>
+
+  <!-- Filtro por Categorías (Chips / Pestañas) -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-500">
+        Categorías
+      </h2>
+      <span id="contador-productos-visibles" class="text-xs font-semibold text-slate-400">
+        {productos.length} productos disponibles
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="chips-categorias">
+      <button
+        type="button"
+        data-categoria-filtro="todas"
+        class="chip-categoria active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-sky-600 text-white shadow-sm cursor-pointer whitespace-nowrap"
+      >
+        Todas ({productos.length})
+      </button>
+
+      {categorias.map(cat => (
+        <button
+          type="button"
+          data-categoria-filtro={cat.id}
+          class="chip-categoria px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs cursor-pointer whitespace-nowrap"
+        >
+          {cat.nombre} ({cat.total_productos})
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Grilla de Productos -->
+  <section aria-label="Productos de la tienda">
+    <div
+      id="grilla-productos"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+    >
+      {productos.map(prod => (
+        <ProductCard producto={prod} simbolo={tienda.simbolo} />
+      ))}
+    </div>
+
+    <!-- Estado vacío de búsqueda -->
+    <div id="busqueda-sin-resultados" class="hidden py-16 text-center">
+      <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+      <h3 class="text-base font-bold text-slate-800">No encontramos resultados</h3>
+      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Prueba buscando con otras palabras o selecciona otra categoría.</p>
+      <button
+        type="button"
+        id="btn-limpiar-filtros"
+        class="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors cursor-pointer"
+      >
+        Ver todos los productos
+      </button>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  // Lógica de filtrado en cliente (instantánea y reactiva)
+  let filtroCategoriaActual = 'todas';
+  let terminoBusquedaActual = '';
+
+  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto')) as HTMLElement[];
+  const contadorVisibles = document.getElementById('contador-productos-visibles');
+  const sinResultados = document.getElementById('busqueda-sin-resultados');
+  const grilla = document.getElementById('grilla-productos');
+  const chips = document.querySelectorAll('.chip-categoria');
+
+  function aplicarFiltros() {
+    let visibles = 0;
+    const query = terminoBusquedaActual.toLowerCase().trim();
+
+    tarjetas.forEach(tarjeta => {
+      const catId = tarjeta.getAttribute('data-categoria-id');
+      const nombre = tarjeta.getAttribute('data-nombre') || '';
+      const sku = tarjeta.getAttribute('data-sku') || '';
+
+      const coincideCategoria = filtroCategoriaActual === 'todas' || catId === filtroCategoriaActual;
+      const coincideBusqueda = !query || nombre.includes(query) || sku.includes(query);
+
+      if (coincideCategoria && coincideBusqueda) {
+        tarjeta.style.display = '';
+        visibles++;
+      } else {
+        tarjeta.style.display = 'none';
+      }
+    });
+
+    if (contadorVisibles) {
+      contadorVisibles.textContent = `${visibles} producto${visibles === 1 ? '' : 's'} disponible${visibles === 1 ? '' : 's'}`;
+    }
+
+    if (sinResultados && grilla) {
+      if (visibles === 0) {
+        sinResultados.classList.remove('hidden');
+        grilla.classList.add('hidden');
+      } else {
+        sinResultados.classList.add('hidden');
+        grilla.classList.remove('hidden');
+      }
+    }
+  }
+
+  // Escuchar búsqueda desde el Header
+  window.addEventListener('catalogo:buscar', ((e: CustomEvent) => {
+    terminoBusquedaActual = e.detail?.query || '';
+    aplicarFiltros();
+  }) as EventListener);
+
+  // Escuchar clics en chips de categorías
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => {
+        c.classList.remove('active', 'bg-sky-600', 'text-white', 'shadow-sm');
+        c.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+      });
+
+      chip.classList.add('active', 'bg-sky-600', 'text-white', 'shadow-sm');
+      chip.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+
+      filtroCategoriaActual = chip.getAttribute('data-categoria-filtro') || 'todas';
+      aplicarFiltros();
+    });
+  });
+
+  // Botón limpiar filtros
+  document.getElementById('btn-limpiar-filtros')?.addEventListener('click', () => {
+    terminoBusquedaActual = '';
+    filtroCategoriaActual = 'todas';
+
+    const inputBuscador = document.getElementById('buscador-productos') as HTMLInputElement | null;
+    if (inputBuscador) inputBuscador.value = '';
+
+    chips.forEach((c, idx) => {
+      if (idx === 0) {
+        c.classList.add('active', 'bg-sky-600', 'text-white', 'shadow-sm');
+        c.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+      } else {
+        c.classList.remove('active', 'bg-sky-600', 'text-white', 'shadow-sm');
+        c.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+      }
+    });
+
+    aplicarFiltros();
+  });
+</script>
