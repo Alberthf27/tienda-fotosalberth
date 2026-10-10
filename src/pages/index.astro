@@ -2,283 +2,251 @@
 import Layout from '../layouts/Layout.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { obtenerCatalogo } from '../lib/catalogo/snapshot';
+import { construirTaxonomia } from '../lib/catalogo/taxonomia';
 
 const catalogo = await obtenerCatalogo();
 const { tienda, categorias, productos } = catalogo;
+const taxonomia = construirTaxonomia(productos);
 
-// Departamentos destacados para vitrinas promocionales
-const deptoCables = categorias.find(c => c.nombre.includes('CABLES')) || categorias[2];
-const deptoParlantes = categorias.find(c => c.nombre.includes('PARLANTES')) || categorias[1];
-const deptoUtiles = categorias.find(c => c.nombre.includes('ÚTILES') || c.nombre.includes('UTILES')) || categorias[0];
-
-// Búsquedas frecuentes para clientes
-const busquedasFrecuentes = [
+// Búsquedas sugeridas rápidas y elegantes
+const sugerenciasRapidas = [
   'Cable tipo C',
+  'Audífono Bluetooth',
+  'Memoria USB',
   'Tinta',
   'Parlante',
-  'Audifono',
-  'Plumon',
-  'USB',
-  'Cargador',
+  'Mouse gamer',
   'Pilas',
-  'Cuaderno'
+  'Cargador rápido'
 ];
 ---
 
 <Layout
-  title="Catálogo Oficial y Tienda Virtual"
-  description={`Catálogo de tecnología, audio, cables, librería e insumos de impresión en ${tienda.ciudad}. Precios oficiales y pedidos directos por WhatsApp.`}
+  title="Catálogo Oficial y Tienda"
+  description={`Catálogo digital oficial de tecnología, audio, fotografía e insumos en ${tienda.ciudad}. Precios reales y pedidos directos por WhatsApp.`}
   tienda={tienda}
-  categorias={categorias}
+  taxonomia={taxonomia}
 >
-  <!-- 1. Franja de Confianza y Garantías Retail (Estilo Falabella / MercadoLibre) -->
-  <section class="mb-6" aria-label="Beneficios y Garantías">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+  <!-- 1. Editorial Hero Showcase (Estilo Apple Retail Minimalista) -->
+  <section class="mb-6" aria-label="Vitrina Principal">
+    <div class="relative bg-slate-900 text-white rounded-3xl p-6 sm:p-8 lg:p-10 overflow-hidden shadow-md">
+      <!-- Fondo sutil con luz ambiental Apple -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-600/20 blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-600/15 blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-400 text-xs font-semibold mb-4 border border-white/10">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>Trujillo • 487 productos verificados en tienda</span>
+        </div>
+
+        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          Tecnología, Fotografía & Conectividad.
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+          Catálogo con stock real y precios transparentes. Pide directo por WhatsApp con entrega a domicilio o recojo en nuestro taller.
+        </p>
+
+        <!-- Botones de Acción de Vitrina -->
+        <div class="flex flex-wrap items-center gap-3 mt-6">
+          <button
+            type="button"
+            id="hero-btn-explorar"
+            class="apple-press px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
+          >
+            Explorar Categorías
+          </button>
+          <a
+            href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20quisiera%20consultar%20por%20un%20producto`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="apple-press px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm backdrop-blur-sm border border-white/10 transition-colors"
+          >
+            Hablar con Asesor
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Garantías de Confianza (Estilo Apple Services) -->
+  <section class="mb-6" aria-label="Garantías y Despacho">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
       
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
+        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="16" height="12" x="1" y="3" rx="2"/>
             <path d="M5 19v-4M19 19v-4M9 19h6"/>
             <circle cx="12" cy="9" r="2"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Envíos en Trujillo</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Entregas a domicilio o trabajo</p>
+          <div class="font-bold text-slate-900 leading-tight">Envíos en Trujillo</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">A domicilio o trabajo</div>
         </div>
       </div>
 
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
+        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
             <polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Recojo en Taller</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Sin costo de envío en tienda</p>
+          <div class="font-bold text-slate-900 leading-tight">Recojo en Taller</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Sin costo de envío</div>
         </div>
       </div>
 
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
+        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="20" height="14" x="2" y="5" rx="2"/>
             <line x1="2" x2="22" y1="10" y2="10"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Yape, Plin y BCP</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Paga contraentrega o previo</p>
+          <div class="font-bold text-slate-900 leading-tight">Yape, Plin y BCP</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Pagos directos seguros</div>
         </div>
       </div>
 
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
+        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <path d="m9 12 2 2 4-4"/>
           </svg>
         </div>
         <div>
-          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Garantía en Taller</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Asesoría de compatibilidad</p>
+          <div class="font-bold text-slate-900 leading-tight">Garantía en Taller</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Prueba y compatibilidad</div>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- 2. Banners Promocionales de Vitrina (Estilo Falabella Hero Grid) -->
-  <section class="mb-6" aria-label="Vitrinas Destacadas">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      
-      <!-- Vitrina 1: Conectividad y Cables -->
-      <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-5 overflow-hidden shadow-sm flex flex-col justify-between min-h-[170px] group">
-        <div class="absolute right-[-15px] bottom-[-15px] opacity-10 group-hover:opacity-20 transition-opacity">
-          <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="6" y="8" width="12" height="8" rx="2"/>
-            <path d="M12 2v6m0 8v6M5 8h14M7 8V4m10 4V4"/>
-          </svg>
-        </div>
-        <div>
-          <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 mb-2">
-            Conectividad & Carga
-          </span>
-          <h3 class="text-lg font-black leading-tight text-white">
-            Cables, Adaptadores & OTG
-          </h3>
-          <p class="text-xs text-slate-300 mt-1 max-w-[220px]">
-            Tipo-C, HDMI, Auxiliares, fuentes y conectores probados.
-          </p>
-        </div>
-        <div class="pt-3">
-          <button
-            type="button"
-            data-banner-filtro={deptoCables ? deptoCables.id : '2'}
-            class="banner-cta-btn inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 hover:bg-emerald-600 px-3 py-1.5 rounded-lg backdrop-blur-xs transition-colors cursor-pointer"
-          >
-            <span>Explorar {deptoCables ? `(${deptoCables.total_productos})` : ''}</span>
-            <span>→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Vitrina 2: Audio y Parlantes -->
-      <div class="relative bg-gradient-to-br from-emerald-950 to-emerald-800 text-white rounded-2xl p-5 overflow-hidden shadow-sm flex flex-col justify-between min-h-[170px] group">
-        <div class="absolute right-[-15px] bottom-[-15px] opacity-10 group-hover:opacity-20 transition-opacity">
-          <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect width="16" height="20" x="4" y="2" rx="2"/>
-            <circle cx="12" cy="14" r="4"/>
-          </svg>
-        </div>
-        <div>
-          <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 mb-2">
-            Audio Portátil
-          </span>
-          <h3 class="text-lg font-black leading-tight text-white">
-            Parlantes, Radios & Audífonos
-          </h3>
-          <p class="text-xs text-emerald-100 mt-1 max-w-[220px]">
-            Sonido Bluetooth, radios FM retro, vinchas y audífonos manos libres.
-          </p>
-        </div>
-        <div class="pt-3">
-          <button
-            type="button"
-            data-banner-filtro={deptoParlantes ? deptoParlantes.id : '4'}
-            class="banner-cta-btn inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 hover:bg-amber-500 hover:text-slate-950 px-3 py-1.5 rounded-lg backdrop-blur-xs transition-colors cursor-pointer"
-          >
-            <span>Explorar {deptoParlantes ? `(${deptoParlantes.total_productos})` : ''}</span>
-            <span>→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Vitrina 3: Útiles y Librería -->
-      <div class="relative bg-gradient-to-br from-blue-950 to-slate-900 text-white rounded-2xl p-5 overflow-hidden shadow-sm flex flex-col justify-between min-h-[170px] group">
-        <div class="absolute right-[-15px] bottom-[-15px] opacity-10 group-hover:opacity-20 transition-opacity">
-          <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-          </svg>
-        </div>
-        <div>
-          <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-400 text-slate-950 mb-2">
-            Oficina & Escolar
-          </span>
-          <h3 class="text-lg font-black leading-tight text-white">
-            Útiles, Librería & Tintas
-          </h3>
-          <p class="text-xs text-slate-300 mt-1 max-w-[220px]">
-            Cuadernos, plumones, resmas, tintas continuas y papelería.
-          </p>
-        </div>
-        <div class="pt-3">
-          <button
-            type="button"
-            data-banner-filtro={deptoUtiles ? deptoUtiles.id : '11'}
-            class="banner-cta-btn inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 hover:bg-sky-500 hover:text-slate-950 px-3 py-1.5 rounded-lg backdrop-blur-xs transition-colors cursor-pointer"
-          >
-            <span>Explorar {deptoUtiles ? `(${deptoUtiles.total_productos})` : ''}</span>
-            <span>→</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- 3. Atajos de Búsqueda Rápida para el Cliente (Quick Search Chips) -->
-  <section class="mb-6 flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none" aria-label="Búsquedas sugeridas">
-    <span class="font-extrabold text-slate-500 uppercase tracking-wider shrink-0 text-[11px] flex items-center gap-1">
-      <span>🔥</span> Frecuentes:
+  <!-- 3. Atajos de Búsqueda Rápida Elegantes -->
+  <section class="mb-5 flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none" aria-label="Búsquedas sugeridas">
+    <span class="font-semibold text-slate-400 uppercase tracking-wider shrink-0 text-[10px]">
+      Sugerencias:
     </span>
-    {busquedasFrecuentes.map(termino => (
+    {sugerenciasRapidas.map(termino => (
       <button
         type="button"
         data-quick-search={termino}
-        class="quick-search-chip px-3 py-1 rounded-full bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer shadow-2xs"
+        class="apple-press px-3 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer shadow-2xs"
       >
         {termino}
       </button>
     ))}
   </section>
 
-  <!-- 4. Barra de Control Retail (Filtros por Categoría, Rango de Precio y Ordenamiento) -->
-  <section class="mb-6 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs" aria-label="Filtros del Catálogo">
+  <!-- 4. Barra de Filtrado Activo, Breadcrumbs y Subcategorías Desplegadas -->
+  <section class="mb-6 bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs" aria-label="Navegación y Filtros">
     
-    <!-- Fila 1: Título, Contador dinámico, Rango de Precio y Ordenamiento -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-      <div>
-        <h2 class="text-base font-black text-slate-900 tracking-tight">
-          Catálogo de Productos
-        </h2>
-        <span id="contador-productos-visibles" class="text-xs font-semibold text-slate-500">
-          Mostrando {productos.length} productos disponibles
-        </span>
+    <!-- Fila 1: Breadcrumb Dinámico y Controles de Orden -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      
+      <!-- Wayfinding / Breadcrumb Apple-Style -->
+      <div class="flex items-center gap-2 flex-wrap text-xs">
+        <span class="text-slate-400">Ubicación:</span>
+        <button
+          type="button"
+          id="breadcrumb-inicio"
+          class="font-semibold text-slate-900 hover:text-emerald-700 cursor-pointer"
+        >
+          Todos los Departamentos
+        </button>
+        <span id="breadcrumb-sep-1" class="text-slate-300 hidden">›</span>
+        <button
+          type="button"
+          id="breadcrumb-cat"
+          class="font-semibold text-emerald-800 hidden cursor-pointer"
+        >
+        </button>
+        <span id="breadcrumb-sep-2" class="text-slate-300 hidden">›</span>
+        <span id="breadcrumb-sub" class="font-semibold text-slate-600 hidden"></span>
+
+        <!-- Botón Limpiar Filtro si hay alguno activo -->
+        <button
+          type="button"
+          id="btn-limpiar-filtro-activo"
+          class="hidden ml-2 px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-medium cursor-pointer"
+        >
+          ✕ Quitar filtro
+        </button>
       </div>
 
-      <!-- Controles de ordenamiento, precio y stock -->
-      <div class="flex flex-wrap items-center gap-2.5">
-        <!-- Filtro Rango de Precio -->
-        <div class="relative inline-flex items-center">
-          <select
-            id="filtro-rango-precio"
-            class="text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 focus:border-emerald-600 focus:outline-hidden cursor-pointer"
-          >
-            <option value="todos">Todos los precios</option>
-            <option value="hasta-10">Hasta S/ 10</option>
-            <option value="10-30">S/ 10 a S/ 30</option>
-            <option value="30-60">S/ 30 a S/ 60</option>
-            <option value="mas-60">Más de S/ 60</option>
-          </select>
-        </div>
+      <!-- Controles de Orden, Precio y Stock -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Rango de Precio -->
+        <select
+          id="filtro-rango-precio"
+          class="text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-hidden cursor-pointer"
+        >
+          <option value="todos">Todos los precios</option>
+          <option value="hasta-10">Hasta S/ 10</option>
+          <option value="10-30">S/ 10 a S/ 30</option>
+          <option value="30-60">S/ 30 a S/ 60</option>
+          <option value="mas-60">Más de S/ 60</option>
+        </select>
 
         <!-- Toggle Solo En Stock -->
-        <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 cursor-pointer transition-colors">
-          <input type="checkbox" id="filtro-solo-stock" class="rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 cursor-pointer transition-colors">
+          <input type="checkbox" id="filtro-solo-stock" class="rounded text-emerald-600 cursor-pointer" />
           <span>Solo en stock</span>
         </label>
 
         <!-- Selector de Orden -->
-        <div class="relative inline-flex items-center">
-          <select
-            id="selector-orden"
-            class="text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 focus:border-emerald-600 focus:outline-hidden cursor-pointer"
-          >
-            <option value="destacados">Destacados</option>
-            <option value="precio-menor">Precio: Menor a Mayor</option>
-            <option value="precio-mayor">Precio: Mayor a Menor</option>
-            <option value="nombre">Nombre: A - Z</option>
-            <option value="stock">Mayor Stock</option>
-          </select>
-        </div>
+        <select
+          id="selector-orden"
+          class="text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-hidden cursor-pointer"
+        >
+          <option value="destacados">Destacados</option>
+          <option value="precio-menor">Precio: Menor a Mayor</option>
+          <option value="precio-mayor">Precio: Mayor a Menor</option>
+          <option value="nombre">Nombre: A - Z</option>
+          <option value="stock">Mayor Stock</option>
+        </select>
       </div>
     </div>
 
-    <!-- Fila 2: Chips Deslizables de Categorías -->
-    <div class="pt-3">
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="chips-categorias">
+    <!-- Fila 2: Subcategorías Desplegadas Naturalmente bajo la Categoría Activa -->
+    <div id="contenedor-subcategorias-desplegadas" class="pt-3">
+      <!-- Barra deslizable de subcategorías específicas cuando una categoría está activa -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="lista-subcategorias-chips">
+        <!-- Generado dinámicamente o categorías directas -->
         <button
           type="button"
-          data-categoria-filtro="todas"
-          class="chip-categoria active px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-emerald-700 text-white shadow-xs cursor-pointer whitespace-nowrap"
+          data-chip-cat="todas"
+          class="chip-sub-item active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-2xs cursor-pointer whitespace-nowrap"
         >
           Todos ({productos.length})
         </button>
 
-        {categorias.map(cat => (
+        {taxonomia.slice(0, 8).map(cat => (
           <button
             type="button"
-            data-categoria-filtro={String(cat.id)}
-            class="chip-categoria px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer whitespace-nowrap"
+            data-chip-cat={String(cat.id)}
+            class="chip-sub-item px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80 cursor-pointer whitespace-nowrap"
           >
-            {cat.nombre} <span class="text-slate-400 font-normal">({cat.total_productos})</span>
+            {cat.nombreCorto} <span class="text-slate-400 text-[11px]">({cat.total})</span>
           </button>
         ))}
       </div>
+    </div>
+
+    <!-- Contador de Resultados Visibles -->
+    <div class="mt-2.5 pt-2 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
+      <span id="contador-productos-visibles">
+        Mostrando {productos.length} productos
+      </span>
+      <span class="text-[11px]">
+        Precios oficiales en Soles (PEN)
+      </span>
     </div>
 
   </section>
@@ -295,86 +263,84 @@ const busquedasFrecuentes = [
     </div>
 
     <!-- Estado Vacío cuando no hay resultados de búsqueda -->
-    <div id="busqueda-sin-resultados" class="hidden py-16 text-center bg-white rounded-2xl border border-slate-200/90 shadow-2xs mt-4">
-      <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div id="busqueda-sin-resultados" class="hidden py-16 text-center bg-white rounded-3xl border border-slate-200/80 shadow-2xs mt-4">
+      <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </div>
-      <h3 class="text-base font-extrabold text-slate-900">No encontramos productos coincidentes</h3>
+      <h3 class="text-sm font-bold text-slate-900">No encontramos coincidencias</h3>
       <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-        Prueba con otro término de búsqueda o selecciona otra categoría.
+        Prueba con otro término de búsqueda o selecciona otra categoría en el menú superior.
       </p>
       <button
         type="button"
-        id="btn-limpiar-filtros"
-        class="mt-4 px-4 py-2 rounded-xl text-xs font-extrabold bg-emerald-700 text-white hover:bg-emerald-800 transition-colors cursor-pointer shadow-xs"
+        id="btn-limpiar-filtros-vacio"
+        class="apple-press mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white cursor-pointer shadow-xs"
       >
         Ver todos los productos
       </button>
     </div>
   </section>
 
-  <!-- 6. Servicios de Taller y Fotografía (Esencia Original de FOTOSALBERTH) -->
-  <section class="mt-16 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs" aria-label="Servicios del Taller">
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+  <!-- 6. Servicios del Taller Presencial (Fotografía, Marcos e Impresión) -->
+  <section class="mt-16 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs" aria-label="Taller y Servicios">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
       <div>
-        <span class="inline-block px-3 py-1 rounded-lg text-xs font-extrabold bg-purple-50 text-purple-700 mb-2">
-          📸 Taller & Servicios en Trujillo
+        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 mb-1.5">
+          Taller Presencial en Trujillo
         </span>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          ¿Necesitas Fotografías, Enmarcados o Impresiones?
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+          Fotografía Profesional, Marcos & Impresiones
         </h2>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
-          Además de nuestro catálogo de tecnología y librería, en nuestro taller presencial realizamos trabajos fotográficos y de imprenta con más de una década de experiencia.
+        <p class="text-xs text-slate-500 mt-0.5 max-w-xl">
+          Además de nuestra tienda de tecnología y papelería, en nuestro taller físico realizamos trabajos fotográficos, enmarcados y acabados a medida.
         </p>
       </div>
 
       <a
-        href="https://wa.me/51987654321?text=Hola%20FotosAlberth%2C%20quisiera%20cotizar%20un%20servicio%20de%20fotograf%C3%ADa%20o%20impresi%C3%B3n"
+        href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20quisiera%20cotizar%20un%20servicio%20de%20fotograf%C3%ADa%20o%20marcos`}
         target="_blank"
         rel="noopener noreferrer"
-        class="shrink-0 px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all"
+        class="apple-press shrink-0 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center gap-2"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-        </svg>
-        <span>Cotizar por WhatsApp</span>
+        <span>Cotizar Servicios en Taller</span>
+        <span>→</span>
       </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-        <span class="text-2xl mb-2 block">📷</span>
-        <h3 class="text-xs font-black text-slate-900">Fotos Carnet y Pasaporte</h3>
-        <p class="text-[11px] text-slate-500 mt-1">Tomas al instante con fondo blanco y medidas biométricas oficiales.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-6 text-xs">
+      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
+        <div class="font-bold text-slate-900">Fotos Carnet & Pasaporte</div>
+        <p class="text-[11px] text-slate-500 mt-1">Tomas biométricas instantáneas con fondo blanco oficial.</p>
       </div>
 
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-        <span class="text-2xl mb-2 block">🖼️</span>
-        <h3 class="text-xs font-black text-slate-900">Cuadros y Enmarcados</h3>
-        <p class="text-[11px] text-slate-500 mt-1">Marcos en madera y vidrio a medida (20x30, 30x40, retratos y diplomas).</p>
+      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
+        <div class="font-bold text-slate-900">Cuadros & Enmarcados</div>
+        <p class="text-[11px] text-slate-500 mt-1">Marcos en madera y vidrio a medida (20x30, retratos y diplomas).</p>
       </div>
 
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-        <span class="text-2xl mb-2 block">🖨️</span>
-        <h3 class="text-xs font-black text-slate-900">Impresión y Copias</h3>
-        <p class="text-[11px] text-slate-500 mt-1">Documentos en B/N y color, impresiones láser, tesis y folletos.</p>
+      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
+        <div class="font-bold text-slate-900">Impresión & Copias</div>
+        <p class="text-[11px] text-slate-500 mt-1">Documentos en B/N y color de alta resolución láser.</p>
       </div>
 
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-        <span class="text-2xl mb-2 block">📑</span>
-        <h3 class="text-xs font-black text-slate-900">Anillados y Plastificados</h3>
-        <p class="text-[11px] text-slate-500 mt-1">Acabados para manuales, credenciales y documentos escolares u oficina.</p>
+      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
+        <div class="font-bold text-slate-900">Anillados & Plastificados</div>
+        <p class="text-[11px] text-slate-500 mt-1">Acabados para manuales, credenciales y documentos.</p>
       </div>
     </div>
   </section>
 </Layout>
 
-<script>
-  // Control de Estado y Filtrado Dinámico en Cliente (Ultra Rápido)
+<script define:vars={{ taxonomiaData: taxonomia }}>
+  // Taxonomía embebida para despliegue natural en cliente
+  const TAXONOMIA = taxonomiaData;
+
+  // Estado del Catálogo
   let filtroCategoriaActual = 'todas';
+  let filtroSubcategoriaActual = '';
   let terminoBusquedaActual = '';
   let soloStockActual = false;
   let ordenActual = 'destacados';
@@ -383,39 +349,127 @@ const busquedasFrecuentes = [
   const grilla = document.getElementById('grilla-productos');
   const contadorVisibles = document.getElementById('contador-productos-visibles');
   const sinResultados = document.getElementById('busqueda-sin-resultados');
-  const chips = document.querySelectorAll('.chip-categoria');
-  const checkSoloStock = document.getElementById('filtro-solo-stock') as HTMLInputElement | null;
-  const selectOrden = document.getElementById('selector-orden') as HTMLSelectElement | null;
-  const selectPrecio = document.getElementById('filtro-rango-precio') as HTMLSelectElement | null;
-  const inputBuscador = document.getElementById('buscador-productos') as HTMLInputElement | null;
+  const checkSoloStock = document.getElementById('filtro-solo-stock');
+  const selectOrden = document.getElementById('selector-orden');
+  const selectPrecio = document.getElementById('filtro-rango-precio');
+  const inputBuscador = document.getElementById('buscador-productos');
 
-  // Obtener todas las tarjetas
-  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto')) as HTMLElement[];
+  // Elementos de Breadcrumbs
+  const bInicio = document.getElementById('breadcrumb-inicio');
+  const bSep1 = document.getElementById('breadcrumb-sep-1');
+  const bCat = document.getElementById('breadcrumb-cat');
+  const bSep2 = document.getElementById('breadcrumb-sep-2');
+  const bSub = document.getElementById('breadcrumb-sub');
+  const btnLimpiarActivo = document.getElementById('btn-limpiar-filtro-activo');
+  const listaSubChips = document.getElementById('lista-subcategorias-chips');
+
+  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto'));
+
+  function actualizarBreadcrumbs() {
+    if (filtroCategoriaActual === 'todas' && !filtroSubcategoriaActual) {
+      bSep1?.classList.add('hidden');
+      bCat?.classList.add('hidden');
+      bSep2?.classList.add('hidden');
+      bSub?.classList.add('hidden');
+      btnLimpiarActivo?.classList.add('hidden');
+    } else {
+      btnLimpiarActivo?.classList.remove('hidden');
+
+      // Buscar datos de la categoría actual
+      const catObj = TAXONOMIA.find(c => String(c.id) === filtroCategoriaActual);
+      if (catObj && bCat) {
+        bCat.textContent = catObj.nombreCorto;
+        bCat.classList.remove('hidden');
+        bSep1?.classList.remove('hidden');
+      }
+
+      if (filtroSubcategoriaActual && bSub) {
+        bSub.textContent = filtroSubcategoriaActual;
+        bSub.classList.remove('hidden');
+        bSep2?.classList.remove('hidden');
+      } else {
+        bSub?.classList.add('hidden');
+        bSep2?.classList.add('hidden');
+      }
+    }
+  }
+
+  function actualizarSubcategoriasChips() {
+    if (!listaSubChips) return;
+    listaSubChips.innerHTML = '';
+
+    if (filtroCategoriaActual === 'todas') {
+      // Mostrar botón "Todos" y las categorías principales
+      const btnTodos = document.createElement('button');
+      btnTodos.className = 'chip-sub-item active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-2xs cursor-pointer whitespace-nowrap';
+      btnTodos.textContent = `Todos (${tarjetas.length})`;
+      btnTodos.onclick = () => fijarFiltro('todas', '');
+      listaSubChips.appendChild(btnTodos);
+
+      TAXONOMIA.slice(0, 10).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'chip-sub-item px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80 cursor-pointer whitespace-nowrap';
+        btn.innerHTML = `${cat.nombreCorto} <span class="text-slate-400 text-[11px]">(${cat.total})</span>`;
+        btn.onclick = () => fijarFiltro(String(cat.id), '');
+        listaSubChips.appendChild(btn);
+      });
+    } else {
+      // Mostrar la categoría activa y sus subcategorías desplegadas naturalmente
+      const catObj = TAXONOMIA.find(c => String(c.id) === filtroCategoriaActual);
+      if (!catObj) return;
+
+      // Botón "Ver todo en esta categoría"
+      const btnCatTodo = document.createElement('button');
+      const isCatTodoActive = !filtroSubcategoriaActual;
+      btnCatTodo.className = `chip-sub-item px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${isCatTodoActive ? 'bg-slate-900 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'}`;
+      btnCatTodo.textContent = `Todo ${catObj.nombreCorto} (${catObj.total})`;
+      btnCatTodo.onclick = () => fijarFiltro(String(catObj.id), '');
+      listaSubChips.appendChild(btnCatTodo);
+
+      // Despliegue natural de cada subcategoría
+      catObj.subcategorias.forEach(sub => {
+        const btn = document.createElement('button');
+        const isActive = filtroSubcategoriaActual === sub.nombre;
+        btn.className = `chip-sub-item px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${isActive ? 'bg-emerald-700 text-white font-bold' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'}`;
+        btn.innerHTML = `${sub.nombre} <span class="${isActive ? 'text-emerald-200' : 'text-slate-400'} text-[11px]">(${sub.total})</span>`;
+        btn.onclick = () => fijarFiltro(String(catObj.id), sub.nombre);
+        listaSubChips.appendChild(btn);
+      });
+    }
+  }
 
   function aplicarFiltrosYOrden() {
     let visibles = 0;
     const query = terminoBusquedaActual.toLowerCase().trim();
 
-    // 1. Filtrar visibilidad
     tarjetas.forEach(tarjeta => {
       const catId = tarjeta.getAttribute('data-categoria-id');
+      const subNom = tarjeta.getAttribute('data-subcategoria') || '';
       const nombre = tarjeta.getAttribute('data-nombre') || '';
       const sku = tarjeta.getAttribute('data-sku') || '';
       const stock = Number(tarjeta.getAttribute('data-stock') || 0);
       const precio = Number(tarjeta.getAttribute('data-precio') || 0);
 
+      // Coincidencia de Categoría
       const coincideCategoria = filtroCategoriaActual === 'todas' || catId === filtroCategoriaActual;
-      const coincideBusqueda = !query || nombre.includes(query) || sku.includes(query);
+
+      // Coincidencia de Subcategoría
+      const coincideSubcategoria = !filtroSubcategoriaActual || subNom === filtroSubcategoriaActual;
+
+      // Coincidencia de Búsqueda
+      const coincideBusqueda = !query || nombre.includes(query) || sku.includes(query) || subNom.toLowerCase().includes(query);
+
+      // Coincidencia de Stock
       const coincideStock = !soloStockActual || stock > 0;
 
-      // Filtro de rango de precio
+      // Coincidencia de Precio
       let coincidePrecio = true;
       if (rangoPrecioActual === 'hasta-10') coincidePrecio = precio <= 10;
       else if (rangoPrecioActual === '10-30') coincidePrecio = precio > 10 && precio <= 30;
       else if (rangoPrecioActual === '30-60') coincidePrecio = precio > 30 && precio <= 60;
       else if (rangoPrecioActual === 'mas-60') coincidePrecio = precio > 60;
 
-      if (coincideCategoria && coincideBusqueda && coincideStock && coincidePrecio) {
+      if (coincideCategoria && coincideSubcategoria && coincideBusqueda && coincideStock && coincidePrecio) {
         tarjeta.style.display = '';
         visibles++;
       } else {
@@ -423,9 +477,9 @@ const busquedasFrecuentes = [
       }
     });
 
-    // 2. Ordenar tarjetas visibles en el DOM si es necesario
+    // Ordenamiento
     if (grilla && ordenActual !== 'destacados') {
-      const tarjetasArray = Array.from(grilla.children) as HTMLElement[];
+      const tarjetasArray = Array.from(grilla.children);
       tarjetasArray.sort((a, b) => {
         const precioA = Number(a.getAttribute('data-precio') || 0);
         const precioB = Number(b.getAttribute('data-precio') || 0);
@@ -443,9 +497,9 @@ const busquedasFrecuentes = [
       tarjetasArray.forEach(el => grilla.appendChild(el));
     }
 
-    // 3. Actualizar textos de contador y estados vacíos
+    // Actualizar Contador
     if (contadorVisibles) {
-      contadorVisibles.textContent = `Mostrando ${visibles} producto${visibles === 1 ? '' : 's'} disponible${visibles === 1 ? '' : 's'}`;
+      contadorVisibles.textContent = `Mostrando ${visibles} producto${visibles === 1 ? '' : 's'}`;
     }
 
     if (sinResultados && grilla) {
@@ -457,86 +511,68 @@ const busquedasFrecuentes = [
         grilla.classList.remove('hidden');
       }
     }
+
+    actualizarBreadcrumbs();
   }
 
-  // Activar chip visualmente
-  function activarChip(categoriaId: string) {
+  function fijarFiltro(categoriaId, subcategoriaNombre = '') {
     filtroCategoriaActual = categoriaId;
-    chips.forEach(c => {
-      const cId = c.getAttribute('data-categoria-filtro');
-      if (cId === categoriaId) {
-        c.classList.add('active', 'bg-emerald-700', 'text-white', 'shadow-xs');
-        c.classList.remove('bg-slate-50', 'text-slate-700', 'border');
-        c.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-      } else {
-        c.classList.remove('active', 'bg-emerald-700', 'text-white', 'shadow-xs');
-        c.classList.add('bg-slate-50', 'text-slate-700', 'border');
-      }
-    });
+    filtroSubcategoriaActual = subcategoriaNombre;
+    actualizarSubcategoriasChips();
     aplicarFiltrosYOrden();
   }
 
-  // Clics en chips de categorías
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const id = chip.getAttribute('data-categoria-filtro') || 'todas';
-      activarChip(id);
-    });
+  // Evento desde Header
+  window.addEventListener('catalogo:categoria', (e) => {
+    const catId = String(e.detail?.categoriaId || 'todas');
+    const subNom = String(e.detail?.subcategoria || '');
+    fijarFiltro(catId, subNom);
+    grilla?.scrollIntoView({ behavior: 'smooth' });
   });
 
-  // Banners CTA clics
-  document.querySelectorAll('[data-banner-filtro]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-banner-filtro');
-      if (id) {
-        activarChip(id);
-        grilla?.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
+  window.addEventListener('catalogo:buscar', (e) => {
+    terminoBusquedaActual = e.detail?.query || '';
+    aplicarFiltrosYOrden();
   });
 
-  // Atajos de búsquedas frecuentes
+  // Breadcrumb clicks
+  bInicio?.addEventListener('click', () => fijarFiltro('todas', ''));
+  bCat?.addEventListener('click', () => fijarFiltro(filtroCategoriaActual, ''));
+  btnLimpiarActivo?.addEventListener('click', () => fijarFiltro('todas', ''));
+
+  // Hero trigger
+  document.getElementById('hero-btn-explorar')?.addEventListener('click', () => {
+    document.getElementById('btn-trigger-categorias')?.click();
+  });
+
+  // Sugerencias rápidas
   document.querySelectorAll('[data-quick-search]').forEach(btn => {
     btn.addEventListener('click', () => {
       const term = btn.getAttribute('data-quick-search') || '';
       terminoBusquedaActual = term;
       if (inputBuscador) inputBuscador.value = term;
-      activarChip('todas');
+      fijarFiltro('todas', '');
       grilla?.scrollIntoView({ behavior: 'smooth' });
     });
   });
 
-  // Evento global desde el Header
-  window.addEventListener('catalogo:categoria', ((e: CustomEvent) => {
-    const id = String(e.detail?.categoriaId || 'todas');
-    activarChip(id);
-  }) as EventListener);
-
-  window.addEventListener('catalogo:buscar', ((e: CustomEvent) => {
-    terminoBusquedaActual = e.detail?.query || '';
-    aplicarFiltrosYOrden();
-  }) as EventListener);
-
-  // Filtro Rango de Precio
+  // Controles
   selectPrecio?.addEventListener('change', (e) => {
-    rangoPrecioActual = (e.target as HTMLSelectElement).value;
+    rangoPrecioActual = e.target.value;
     aplicarFiltrosYOrden();
   });
 
-  // Filtro Solo en stock
   checkSoloStock?.addEventListener('change', (e) => {
-    soloStockActual = (e.target as HTMLInputElement).checked;
+    soloStockActual = e.target.checked;
     aplicarFiltrosYOrden();
   });
 
-  // Selector de Orden
   selectOrden?.addEventListener('change', (e) => {
-    ordenActual = (e.target as HTMLSelectElement).value;
+    ordenActual = e.target.value;
     aplicarFiltrosYOrden();
   });
 
-  // Botón Limpiar Filtros
-  document.getElementById('btn-limpiar-filtros')?.addEventListener('click', () => {
+  document.getElementById('btn-limpiar-filtros-vacio')?.addEventListener('click', () => {
     terminoBusquedaActual = '';
     soloStockActual = false;
     ordenActual = 'destacados';
@@ -547,6 +583,6 @@ const busquedasFrecuentes = [
     if (selectOrden) selectOrden.value = 'destacados';
     if (selectPrecio) selectPrecio.value = 'todos';
 
-    activarChip('todas');
+    fijarFiltro('todas', '');
   });
 </script>

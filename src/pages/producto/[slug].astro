@@ -1,24 +1,27 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { obtenerCatalogo } from '../../lib/catalogo/snapshot';
-import type { ProductoCatalogo, InfoTienda, CategoriaCatalogo } from '../../lib/catalogo/tipos';
+import { construirTaxonomia } from '../../lib/catalogo/taxonomia';
+import type { ProductoCatalogo, InfoTienda } from '../../lib/catalogo/tipos';
+import type { CategoriaConSubcategorias } from '../../lib/catalogo/taxonomia';
 import { generarEnlaceWhatsApp } from '../../lib/pedido/mensaje';
 
 export async function getStaticPaths() {
   const catalogo = await obtenerCatalogo();
+  const taxonomia = construirTaxonomia(catalogo.productos);
   return catalogo.productos.map(producto => ({
     params: { slug: producto.slug },
-    props: { producto, tienda: catalogo.tienda, categorias: catalogo.categorias }
+    props: { producto, tienda: catalogo.tienda, taxonomia }
   }));
 }
 
 interface Props {
   producto: ProductoCatalogo;
   tienda: InfoTienda;
-  categorias: CategoriaCatalogo[];
+  taxonomia: CategoriaConSubcategorias[];
 }
 
-const { producto, tienda, categorias = [] } = Astro.props;
+const { producto, tienda, taxonomia = [] } = Astro.props;
 const tieneStock = producto.stock > 0 && producto.disponible;
 const tieneFotoReal = Boolean(producto.fotos && producto.fotos.length > 0);
 const fotoReal = tieneFotoReal ? producto.fotos[0] : null;
@@ -26,18 +29,6 @@ const tieneOferta = Boolean(producto.precio_anterior && producto.precio_anterior
 const porcentajeDescuento = tieneOferta && producto.precio_anterior
   ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
   : 0;
-
-const botonClase = tieneStock
-  ? 'bg-slate-900 hover:bg-emerald-700 text-white cursor-pointer active:scale-98 shadow-md'
-  : 'bg-slate-100 text-slate-400 cursor-not-allowed';
-
-const stockPillClase = tieneStock
-  ? (producto.stock <= 3 ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900')
-  : 'bg-rose-100 text-rose-800';
-
-const stockPillTexto = tieneStock
-  ? (producto.stock <= 3 ? `⚡ ¡Solo ${producto.stock} disponibles!` : `✓ ${producto.stock} disponibles`)
-  : 'Agotado';
 
 // Enlace directo de WhatsApp para este producto
 const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
@@ -62,24 +53,30 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
 
 <Layout
   title={`${producto.nombre} | FOTOSALBERTH`}
-  description={producto.descripcion || `Compra ${producto.nombre} en ${tienda.nombre} - ${tienda.ciudad}. Calidad garantizada y pedidos por WhatsApp.`}
+  description={producto.descripcion || `Adquiere ${producto.nombre} en ${tienda.nombre} - ${tienda.ciudad}. Stock verificado y pedidos por WhatsApp.`}
   tienda={tienda}
-  categorias={categorias}
+  taxonomia={taxonomia}
 >
-  <!-- Breadcrumbs de Navegación Retail -->
-  <nav class="mb-6 flex items-center gap-2 text-xs text-slate-500 overflow-x-auto whitespace-nowrap">
-    <a href="/" class="hover:text-emerald-700 transition-colors font-medium">Inicio</a>
-    <span>/</span>
-    <span class="text-slate-400">{producto.categoria}</span>
-    <span>/</span>
-    <span class="font-bold text-slate-900 truncate max-w-sm">{producto.nombre}</span>
+  <!-- Breadcrumbs Apple-style -->
+  <nav class="mb-5 flex items-center gap-2 text-xs text-slate-400 overflow-x-auto whitespace-nowrap">
+    <a href="/" class="hover:text-slate-900 transition-colors font-medium">Inicio</a>
+    <span>›</span>
+    <span class="text-slate-600">{producto.categoria}</span>
+    {producto.familia && (
+      <>
+        <span>›</span>
+        <span class="text-slate-600">{producto.familia}</span>
+      </>
+    )}
+    <span>›</span>
+    <span class="font-semibold text-slate-900 truncate max-w-sm">{producto.nombre}</span>
   </nav>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs">
     
-    <!-- Galería / Imagen o Gráfico Oficial -->
+    <!-- Galería / Imagen -->
     <div class="space-y-4">
-      <div class="relative aspect-square rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 p-6 flex items-center justify-center">
+      <div class="relative aspect-square rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 p-6 flex items-center justify-center">
         {tieneFotoReal ? (
           <img
             id="foto-detalle-principal"
@@ -88,36 +85,36 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
             class="w-full h-full object-contain transition-all duration-300"
           />
         ) : (
-          <div class="flex flex-col items-center justify-center text-center p-6">
-            <div class="w-24 h-24 rounded-3xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-3 shadow-inner">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <div class="flex flex-col items-center justify-center text-center p-6 text-slate-400">
+            <div class="w-20 h-20 rounded-2xl bg-white border border-slate-200/70 flex items-center justify-center mb-3 shadow-2xs">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
                 <path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>
               </svg>
             </div>
-            <span class="text-xs font-black tracking-widest text-slate-400 uppercase">FOTOSALBERTH OFICIAL</span>
-            <span class="text-xs font-semibold text-emerald-800 mt-1">{producto.categoria}</span>
+            <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">FOTOSALBERTH OFICIAL</span>
+            <span class="text-xs font-semibold text-slate-700 mt-1">{producto.categoria}</span>
           </div>
         )}
 
-        <!-- Badge Descuento -->
+        <!-- Descuento -->
         {tieneOferta && tieneStock && (
-          <span class="absolute top-4 left-4 px-3 py-1 rounded-lg text-xs font-black bg-rose-600 text-white shadow-xs">
+          <span class="absolute top-4 left-4 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-xs">
             -{porcentajeDescuento}% DTO.
           </span>
         )}
 
-        <!-- Badge Agotado -->
+        <!-- Agotado -->
         {!tieneStock && (
-          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center">
-            <span class="px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg">
-              Producto Agotado
+          <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
+            <span class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-white text-slate-900 shadow-md">
+              Agotado
             </span>
           </div>
         )}
       </div>
 
-      <!-- Miniaturas si hay más fotos -->
+      <!-- Miniaturas de fotos si existen -->
       {producto.fotos && producto.fotos.length > 1 && (
         <div class="flex gap-2 overflow-x-auto pb-1">
           {producto.fotos.map((foto, idx) => (
@@ -125,8 +122,8 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
               type="button"
               data-foto-thumb={foto}
               class:list={[
-                'w-16 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer',
-                idx === 0 ? 'border-emerald-600' : 'border-slate-200 opacity-70 hover:opacity-100'
+                'w-16 h-16 rounded-xl overflow-hidden border transition-all cursor-pointer bg-slate-50',
+                idx === 0 ? 'border-slate-900 ring-2 ring-slate-900/10' : 'border-slate-200 opacity-70 hover:opacity-100'
               ]}
             >
               <img src={foto} alt="" class="w-full h-full object-contain p-1" />
@@ -135,20 +132,20 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
         </div>
       )}
 
-      <!-- Sellos de Confianza -->
-      <div class="grid grid-cols-2 gap-3 pt-2">
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-700">
-          <span class="text-emerald-600 text-base">🛡️</span>
+      <!-- Sellos de Respaldo Apple-style -->
+      <div class="grid grid-cols-2 gap-3 pt-2 text-xs">
+        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-slate-700">
+          <div class="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-emerald-600 font-bold">✓</div>
           <div>
-            <strong class="block">Garantía en Taller</strong>
-            <span class="text-[10px] text-slate-500">Probado y verificado</span>
+            <div class="font-bold text-slate-900 leading-tight">Garantía en Taller</div>
+            <span class="text-[11px] text-slate-400">Verificado en Trujillo</span>
           </div>
         </div>
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-700">
-          <span class="text-blue-600 text-base">🏬</span>
+        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-slate-700">
+          <div class="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-blue-600 font-bold">📍</div>
           <div>
-            <strong class="block">Recojo Inmediato</strong>
-            <span class="text-[10px] text-slate-500">En tienda de Trujillo</span>
+            <div class="font-bold text-slate-900 leading-tight">Entrega Inmediata</div>
+            <span class="text-[11px] text-slate-400">A domicilio o recojo</span>
           </div>
         </div>
       </div>
@@ -156,66 +153,72 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
 
     <!-- Información del Producto -->
     <div class="flex flex-col justify-between space-y-6">
-      <div class="space-y-5">
+      <div class="space-y-4">
         <div>
           <div class="flex items-center gap-2 mb-2">
-            <span class="inline-block px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800">
+            <span class="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700">
               {producto.categoria}
             </span>
             {producto.familia && (
-              <span class="text-xs font-semibold text-slate-400">
+              <span class="text-xs font-medium text-slate-400">
                 • {producto.familia}
               </span>
             )}
           </div>
 
-          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight leading-snug">
             {producto.nombre}
           </h1>
 
-          <div class="flex items-center gap-4 text-xs font-mono text-slate-500 mt-2">
-            <span>SKU: <strong class="text-slate-700">{producto.sku || 'N/A'}</strong></span>
+          <div class="flex items-center gap-3 text-xs font-mono text-slate-400 mt-2">
+            <span>Código: <strong class="text-slate-600 font-sans">{producto.sku || 'REF'}</strong></span>
             <span>•</span>
-            <span class="text-emerald-700 font-bold font-sans">Producto 100% Original</span>
+            <span class="text-emerald-700 font-sans font-medium">Original con garantía</span>
           </div>
         </div>
 
-        <!-- Tarjeta de Precio Retail -->
-        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+        <!-- Tarjeta de Precio -->
+        <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 space-y-2">
           <div class="flex items-baseline justify-between">
             <div>
-              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                Precio Tienda Oficial
+              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                Precio en Tienda
               </span>
               <div class="flex items-baseline gap-2 mt-0.5">
-                <span class="text-3xl sm:text-4xl font-black text-slate-950 font-mono tracking-tight">
+                <span class="text-2xl sm:text-3xl font-bold text-slate-950 font-mono tracking-tight">
                   {tienda.simbolo} {producto.precio.toFixed(2)}
                 </span>
                 {tieneOferta && (
-                  <span class="text-base text-slate-400 line-through font-mono">
+                  <span class="text-sm text-slate-400 line-through font-mono">
                     {tienda.simbolo} {producto.precio_anterior?.toFixed(2)}
                   </span>
                 )}
               </div>
             </div>
 
-            <!-- Estado de Stock -->
             <div class="text-right">
-              <span class:list={['inline-block px-3 py-1 rounded-full text-xs font-extrabold', stockPillClase]}>
-                {stockPillTexto}
-              </span>
+              {tieneStock ? (
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  {producto.stock} en stock
+                </span>
+              ) : (
+                <span class="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/60">
+                  Agotado
+                </span>
+              )}
             </div>
           </div>
-          <p class="text-[11px] text-slate-500">
-            Aceptamos Yape, Plin, Transferencias BCP/BBVA y Efectivo al recibir.
+          <p class="text-[11px] text-slate-400">
+            Aceptamos Yape, Plin, BCP, BBVA y Efectivo al recibir.
           </p>
         </div>
 
         <!-- Descripción -->
         {producto.descripcion && (
-          <div class="space-y-2">
-            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Descripción del Producto</h3>
-            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+          <div class="space-y-1.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Detalles</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line bg-white p-3.5 rounded-xl border border-slate-100">
               {producto.descripcion}
             </p>
           </div>
@@ -224,12 +227,12 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
         <!-- Especificaciones Técnicas -->
         {producto.specs && Object.keys(producto.specs).length > 0 && (
           <div class="space-y-2 pt-2 border-t border-slate-100">
-            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Ficha Técnica</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Especificaciones</h3>
             <div class="grid grid-cols-2 gap-2 text-xs">
               {Object.entries(producto.specs).map(([clave, valor]) => (
-                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span class="block text-slate-400 font-medium">{clave}</span>
-                  <span class="font-bold text-slate-800">{valor}</span>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                  <span class="block text-slate-400 text-[11px]">{clave}</span>
+                  <span class="font-semibold text-slate-800">{valor}</span>
                 </div>
               ))}
             </div>
@@ -238,15 +241,15 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
       </div>
 
       <!-- Acciones de Compra -->
-      <div class="space-y-3 pt-6 border-t border-slate-200">
+      <div class="space-y-3 pt-5 border-t border-slate-100">
         <div class="flex items-center gap-3">
           <!-- Control de Cantidad -->
           {tieneStock && (
-            <div class="flex items-center border border-slate-300 rounded-xl bg-white p-1 shadow-2xs">
+            <div class="flex items-center border border-slate-200 rounded-xl bg-white p-1">
               <button
                 type="button"
                 id="btn-detalle-dec"
-                class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer text-base"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer"
               >−</button>
               <input
                 type="number"
@@ -254,12 +257,12 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
                 value="1"
                 min="1"
                 max={producto.stock}
-                class="w-12 text-center text-sm font-black text-slate-900 border-none focus:outline-hidden"
+                class="w-10 text-center text-xs font-bold text-slate-900 border-none focus:outline-hidden"
               />
               <button
                 type="button"
                 id="btn-detalle-inc"
-                class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer text-base"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer"
               >+</button>
             </div>
           )}
@@ -282,11 +285,13 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
             })}
             data-max-stock={producto.stock}
             class:list={[
-              'flex-1 py-3.5 px-5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-sm',
-              botonClase
+              'apple-press flex-1 py-3 px-5 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer',
+              tieneStock
+                ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             ]}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="8" cy="21" r="1"/>
               <circle cx="19" cy="21" r="1"/>
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
@@ -295,18 +300,18 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
           </button>
         </div>
 
-        <!-- Botón Compra Directa por WhatsApp -->
+        <!-- Pedido Directo por WhatsApp -->
         {tieneStock && (
           <a
             href={enlaceWhatsAppDirecto}
             target="_blank"
             rel="noopener noreferrer"
-            class="w-full py-3.5 px-5 rounded-xl font-black text-sm text-white bg-emerald-700 hover:bg-emerald-800 flex items-center justify-center gap-2 shadow-sm transition-all"
+            class="apple-press w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-white bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-2 transition-all"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
               <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
             </svg>
-            Consultar directo por WhatsApp
+            <span>Consultar por WhatsApp</span>
           </a>
         )}
       </div>

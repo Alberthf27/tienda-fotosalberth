@@ -2,47 +2,91 @@
 
 @layer base {
   :root {
-    --color-fondo: #f4f6f8;
+    --color-fondo: #f8fafc;
     --color-superficie: #ffffff;
-    --color-borde: #e5e7eb;
-    --color-texto-titulos: #111827;
-    --color-texto-cuerpo: #374151;
-    --color-texto-secundario: #6b7280;
+    --color-borde: rgba(0, 0, 0, 0.08);
+    --color-texto-titulos: #0f172a;
+    --color-texto-cuerpo: #334155;
+    --color-texto-secundario: #64748b;
     
-    /* Paleta Retail Empresarial (Inspirado en Falabella / MercadoLibre) */
-    --color-primario-retail: #16a34a; /* Verde institucional retail */
-    --color-primario-retail-hover: #15803d;
-    --color-acento-naranja: #f97316; /* Badge ofertas / destacados */
-    --color-azul-corporativo: #1e40af; /* Categorías tecnología */
-    --color-whatsapp: #25d366;
-    --color-whatsapp-hover: #1ebe5d;
-    --color-alerta-agotado: #dc2626;
+    /* Paleta Fotografía y Tecnología Apple-Inspired */
+    --color-acento: #059669; /* Esmeralda sobrio */
+    --color-acento-hover: #047857;
+    --color-acento-light: #ecfdf5;
+    --color-dark: #0f172a;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
     background-color: var(--color-fondo);
     color: var(--color-texto-cuerpo);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    letter-spacing: -0.011em;
   }
 }
 
-/* Efectos y Elevaciones Retail */
-.sombra-card {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+/* Materiales y Translucidez Estilo Apple */
+.apple-glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
-.sombra-card:hover {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
+.apple-glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
+/* Microinteracciones táctiles físicas (Apple spring feedback) */
+.apple-press {
+  transition: transform 120ms cubic-bezier(0.2, 0.8, 0.4, 1), background-color 150ms ease;
+}
+.apple-press:active {
+  transform: scale(0.965);
+}
+
+/* Elevaciones sutiles naturales */
+.apple-shadow-sm {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+
+.apple-shadow-md {
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.03);
+}
+
+.apple-shadow-lg {
+  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.09), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Scrollbar invisible pero funcional */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Transiciones de apertura suaves */
+@keyframes megaMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-menu-slide {
+  animation: megaMenuFadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
