@@ -1,26 +1,43 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { obtenerCatalogo } from '../../lib/catalogo/snapshot';
-import type { ProductoCatalogo, InfoTienda } from '../../lib/catalogo/tipos';
+import type { ProductoCatalogo, InfoTienda, CategoriaCatalogo } from '../../lib/catalogo/tipos';
 import { generarEnlaceWhatsApp } from '../../lib/pedido/mensaje';
 
 export async function getStaticPaths() {
   const catalogo = await obtenerCatalogo();
   return catalogo.productos.map(producto => ({
     params: { slug: producto.slug },
-    props: { producto, tienda: catalogo.tienda }
+    props: { producto, tienda: catalogo.tienda, categorias: catalogo.categorias }
   }));
 }
 
 interface Props {
   producto: ProductoCatalogo;
   tienda: InfoTienda;
+  categorias: CategoriaCatalogo[];
 }
 
-const { producto, tienda } = Astro.props;
+const { producto, tienda, categorias = [] } = Astro.props;
 const tieneStock = producto.stock > 0 && producto.disponible;
-const imagenPrincipal = producto.fotos[0] || 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80';
-const tieneOferta = producto.precio_anterior && producto.precio_anterior > producto.precio;
+const tieneFotoReal = Boolean(producto.fotos && producto.fotos.length > 0);
+const fotoReal = tieneFotoReal ? producto.fotos[0] : null;
+const tieneOferta = Boolean(producto.precio_anterior && producto.precio_anterior > producto.precio);
+const porcentajeDescuento = tieneOferta && producto.precio_anterior
+  ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
+  : 0;
+
+const botonClase = tieneStock
+  ? 'bg-slate-900 hover:bg-emerald-700 text-white cursor-pointer active:scale-98 shadow-md'
+  : 'bg-slate-100 text-slate-400 cursor-not-allowed';
+
+const stockPillClase = tieneStock
+  ? (producto.stock <= 3 ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900')
+  : 'bg-rose-100 text-rose-800';
+
+const stockPillTexto = tieneStock
+  ? (producto.stock <= 3 ? `⚡ ¡Solo ${producto.stock} disponibles!` : `✓ ${producto.stock} disponibles`)
+  : 'Agotado';
 
 // Enlace directo de WhatsApp para este producto
 const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
@@ -35,98 +52,170 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
       stockMaximo: producto.stock
     }
   ],
-  tienda
+  tienda,
+  {
+    entrega: 'tienda',
+    metodoPago: 'yape'
+  }
 );
 ---
 
 <Layout
-  title={producto.nombre}
-  description={producto.descripcion || `Compra ${producto.nombre} en ${tienda.nombre} - ${tienda.ciudad}`}
+  title={`${producto.nombre} | FOTOSALBERTH`}
+  description={producto.descripcion || `Compra ${producto.nombre} en ${tienda.nombre} - ${tienda.ciudad}. Calidad garantizada y pedidos por WhatsApp.`}
   tienda={tienda}
+  categorias={categorias}
 >
-  <!-- Breadcrumbs -->
-  <nav class="mb-6 flex items-center gap-2 text-xs text-slate-500">
-    <a href="/" class="hover:text-sky-600 transition-colors">Inicio</a>
+  <!-- Breadcrumbs de Navegación Retail -->
+  <nav class="mb-6 flex items-center gap-2 text-xs text-slate-500 overflow-x-auto whitespace-nowrap">
+    <a href="/" class="hover:text-emerald-700 transition-colors font-medium">Inicio</a>
     <span>/</span>
     <span class="text-slate-400">{producto.categoria}</span>
     <span>/</span>
-    <span class="font-bold text-slate-700 truncate max-w-xs">{producto.nombre}</span>
+    <span class="font-bold text-slate-900 truncate max-w-sm">{producto.nombre}</span>
   </nav>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs">
     
-    <!-- Galería / Imagen -->
+    <!-- Galería / Imagen o Gráfico Oficial -->
     <div class="space-y-4">
-      <div class="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
-        <img
-          id="foto-detalle-principal"
-          src={imagenPrincipal}
-          alt={producto.nombre}
-          class="w-full h-full object-cover transition-all duration-300"
-        />
+      <div class="relative aspect-square rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 p-6 flex items-center justify-center">
+        {tieneFotoReal ? (
+          <img
+            id="foto-detalle-principal"
+            src={fotoReal}
+            alt={producto.nombre}
+            class="w-full h-full object-contain transition-all duration-300"
+          />
+        ) : (
+          <div class="flex flex-col items-center justify-center text-center p-6">
+            <div class="w-24 h-24 rounded-3xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-3 shadow-inner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                <path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>
+              </svg>
+            </div>
+            <span class="text-xs font-black tracking-widest text-slate-400 uppercase">FOTOSALBERTH OFICIAL</span>
+            <span class="text-xs font-semibold text-emerald-800 mt-1">{producto.categoria}</span>
+          </div>
+        )}
 
+        <!-- Badge Descuento -->
+        {tieneOferta && tieneStock && (
+          <span class="absolute top-4 left-4 px-3 py-1 rounded-lg text-xs font-black bg-rose-600 text-white shadow-xs">
+            -{porcentajeDescuento}% DTO.
+          </span>
+        )}
+
+        <!-- Badge Agotado -->
         {!tieneStock && (
           <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center">
-            <span class="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg">
+            <span class="px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg">
               Producto Agotado
             </span>
           </div>
         )}
       </div>
 
-      <!-- Miniaturas si hay más de 1 foto -->
-      {producto.fotos.length > 1 && (
+      <!-- Miniaturas si hay más fotos -->
+      {producto.fotos && producto.fotos.length > 1 && (
         <div class="flex gap-2 overflow-x-auto pb-1">
           {producto.fotos.map((foto, idx) => (
             <button
               type="button"
               data-foto-thumb={foto}
-              class={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                idx === 0 ? 'border-sky-600' : 'border-slate-200 opacity-70 hover:opacity-100'
-              }`}
+              class:list={[
+                'w-16 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer',
+                idx === 0 ? 'border-emerald-600' : 'border-slate-200 opacity-70 hover:opacity-100'
+              ]}
             >
-              <img src={foto} alt="" class="w-full h-full object-cover" />
+              <img src={foto} alt="" class="w-full h-full object-contain p-1" />
             </button>
           ))}
         </div>
       )}
+
+      <!-- Sellos de Confianza -->
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-700">
+          <span class="text-emerald-600 text-base">🛡️</span>
+          <div>
+            <strong class="block">Garantía en Taller</strong>
+            <span class="text-[10px] text-slate-500">Probado y verificado</span>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5 text-xs text-slate-700">
+          <span class="text-blue-600 text-base">🏬</span>
+          <div>
+            <strong class="block">Recojo Inmediato</strong>
+            <span class="text-[10px] text-slate-500">En tienda de Trujillo</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Información del Producto -->
     <div class="flex flex-col justify-between space-y-6">
-      <div class="space-y-4">
+      <div class="space-y-5">
         <div>
-          <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-sky-50 text-sky-700 mb-2">
-            {producto.categoria}
-          </span>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="inline-block px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800">
+              {producto.categoria}
+            </span>
+            {producto.familia && (
+              <span class="text-xs font-semibold text-slate-400">
+                • {producto.familia}
+              </span>
+            )}
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
             {producto.nombre}
           </h1>
-          <p class="text-xs font-mono text-slate-400 mt-1">SKU: {producto.sku || 'N/A'}</p>
+
+          <div class="flex items-center gap-4 text-xs font-mono text-slate-500 mt-2">
+            <span>SKU: <strong class="text-slate-700">{producto.sku || 'N/A'}</strong></span>
+            <span>•</span>
+            <span class="text-emerald-700 font-bold font-sans">Producto 100% Original</span>
+          </div>
         </div>
 
-        <!-- Precio -->
-        <div class="flex items-baseline gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-          <span class="text-3xl font-black text-slate-900 tracking-tight font-mono">
-            {tienda.simbolo} {producto.precio.toFixed(2)}
-          </span>
-          {tieneOferta && (
-            <span class="text-base text-slate-400 line-through font-mono">
-              {tienda.simbolo} {producto.precio_anterior?.toFixed(2)}
-            </span>
-          )}
-          <span class={`ml-auto text-xs font-bold px-2.5 py-1 rounded-full ${
-            tieneStock ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-          }`}>
-            {tieneStock ? `${producto.stock} en stock` : 'Agotado'}
-          </span>
+        <!-- Tarjeta de Precio Retail -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <div class="flex items-baseline justify-between">
+            <div>
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                Precio Tienda Oficial
+              </span>
+              <div class="flex items-baseline gap-2 mt-0.5">
+                <span class="text-3xl sm:text-4xl font-black text-slate-950 font-mono tracking-tight">
+                  {tienda.simbolo} {producto.precio.toFixed(2)}
+                </span>
+                {tieneOferta && (
+                  <span class="text-base text-slate-400 line-through font-mono">
+                    {tienda.simbolo} {producto.precio_anterior?.toFixed(2)}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <!-- Estado de Stock -->
+            <div class="text-right">
+              <span class:list={['inline-block px-3 py-1 rounded-full text-xs font-extrabold', stockPillClase]}>
+                {stockPillTexto}
+              </span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500">
+            Aceptamos Yape, Plin, Transferencias BCP/BBVA y Efectivo al recibir.
+          </p>
         </div>
 
         <!-- Descripción -->
         {producto.descripcion && (
           <div class="space-y-2">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Descripción</h3>
-            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Descripción del Producto</h3>
+            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/50 p-4 rounded-xl border border-slate-100">
               {producto.descripcion}
             </p>
           </div>
@@ -135,10 +224,10 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
         <!-- Especificaciones Técnicas -->
         {producto.specs && Object.keys(producto.specs).length > 0 && (
           <div class="space-y-2 pt-2 border-t border-slate-100">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Especificaciones</h3>
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Ficha Técnica</h3>
             <div class="grid grid-cols-2 gap-2 text-xs">
               {Object.entries(producto.specs).map(([clave, valor]) => (
-                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span class="block text-slate-400 font-medium">{clave}</span>
                   <span class="font-bold text-slate-800">{valor}</span>
                 </div>
@@ -153,11 +242,11 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
         <div class="flex items-center gap-3">
           <!-- Control de Cantidad -->
           {tieneStock && (
-            <div class="flex items-center border border-slate-200 rounded-xl bg-white p-1">
+            <div class="flex items-center border border-slate-300 rounded-xl bg-white p-1 shadow-2xs">
               <button
                 type="button"
                 id="btn-detalle-dec"
-                class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer"
+                class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer text-base"
               >−</button>
               <input
                 type="number"
@@ -165,12 +254,12 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
                 value="1"
                 min="1"
                 max={producto.stock}
-                class="w-12 text-center text-sm font-extrabold text-slate-900 border-none focus:outline-hidden"
+                class="w-12 text-center text-sm font-black text-slate-900 border-none focus:outline-hidden"
               />
               <button
                 type="button"
                 id="btn-detalle-inc"
-                class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer"
+                class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold cursor-pointer text-base"
               >+</button>
             </div>
           )}
@@ -180,13 +269,24 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
             type="button"
             id="btn-detalle-agregar"
             disabled={!tieneStock}
-            class={`flex-1 py-3 px-5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm ${
-              tieneStock
-                ? 'bg-sky-600 hover:bg-sky-700 text-white cursor-pointer active:scale-98'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-            }`}
+            data-producto={JSON.stringify({
+              id: producto.id,
+              sku: producto.sku,
+              nombre: producto.nombre,
+              slug: producto.slug,
+              precio: producto.precio,
+              stock: producto.stock,
+              foto: fotoReal || '',
+              categoria: producto.categoria,
+              disponible: producto.disponible
+            })}
+            data-max-stock={producto.stock}
+            class:list={[
+              'flex-1 py-3.5 px-5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-sm',
+              botonClase
+            ]}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="8" cy="21" r="1"/>
               <circle cx="19" cy="21" r="1"/>
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
@@ -201,12 +301,12 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
             href={enlaceWhatsAppDirecto}
             target="_blank"
             rel="noopener noreferrer"
-            class="w-full py-3 px-5 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-2 shadow-sm transition-all"
+            class="w-full py-3.5 px-5 rounded-xl font-black text-sm text-white bg-emerald-700 hover:bg-emerald-800 flex items-center justify-center gap-2 shadow-sm transition-all"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
             </svg>
-            Comprar directo por WhatsApp
+            Consultar directo por WhatsApp
           </a>
         )}
       </div>
@@ -215,11 +315,13 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
   </div>
 </Layout>
 
-<script define:vars={{ producto }}>
+<script>
   const inputCant = document.getElementById('input-detalle-cantidad') as HTMLInputElement | null;
   const btnDec = document.getElementById('btn-detalle-dec');
   const btnInc = document.getElementById('btn-detalle-inc');
   const btnAgregar = document.getElementById('btn-detalle-agregar');
+
+  const maxStock = btnAgregar ? Number(btnAgregar.getAttribute('data-max-stock') || 999) : 999;
 
   btnDec?.addEventListener('click', () => {
     if (!inputCant) return;
@@ -230,14 +332,21 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
   btnInc?.addEventListener('click', () => {
     if (!inputCant) return;
     const actual = parseInt(inputCant.value) || 1;
-    if (actual < producto.stock) inputCant.value = String(actual + 1);
+    if (actual < maxStock) inputCant.value = String(actual + 1);
   });
 
   btnAgregar?.addEventListener('click', () => {
-    const cant = inputCant ? parseInt(inputCant.value) || 1 : 1;
-    window.dispatchEvent(new CustomEvent('cart:add', {
-      detail: { producto, cantidad: cant }
-    }));
+    try {
+      const raw = btnAgregar.getAttribute('data-producto');
+      if (!raw) return;
+      const prod = JSON.parse(raw);
+      const cant = inputCant ? parseInt(inputCant.value) || 1 : 1;
+      window.dispatchEvent(new CustomEvent('cart:add', {
+        detail: { producto: prod, cantidad: cant }
+      }));
+    } catch (err) {
+      console.error('Error al agregar:', err);
+    }
   });
 
   // Miniaturas de foto

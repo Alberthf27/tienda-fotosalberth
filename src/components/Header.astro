@@ -1,102 +1,201 @@
 ---
-import type { InfoTienda } from '../lib/catalogo/tipos';
+import type { InfoTienda, CategoriaCatalogo } from '../lib/catalogo/tipos';
 
 interface Props {
   tienda: InfoTienda;
+  categorias?: CategoriaCatalogo[];
 }
 
-const { tienda } = Astro.props;
+const { tienda, categorias = [] } = Astro.props;
+
+// Categorías destacadas para la barra de departamentos
+const categoriasPrincipales = categorias.slice(0, 7);
 ---
 
-<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-shadow duration-200 shadow-xs">
+<!-- Barra superior corporativa (Avisos de despacho y contacto) -->
+<div class="bg-slate-950 text-slate-300 text-[11px] py-1.5 px-4 border-b border-slate-800">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-1">
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span>Tienda Oficial <strong>{tienda.nombre}</strong> • {tienda.ciudad}, Perú</span>
+      <span class="hidden md:inline text-slate-600">|</span>
+      <span class="hidden md:inline text-slate-400">Envíos directos a domicilio y recojo en tienda</span>
+    </div>
+    <div class="flex items-center gap-4 text-slate-400">
+      <span>Pagos: <strong>Yape</strong>, <strong>Plin</strong>, <strong>Transferencias</strong> y Efectivo</span>
+      <span class="hidden sm:inline text-slate-600">|</span>
+      <a href="https://wa.me/51987654321" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-400 font-semibold text-emerald-500 transition-colors flex items-center gap-1">
+        WhatsApp: 987 654 321
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Header Principal (Estilo Retail / Falabella) -->
+<header class="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16 gap-4">
+    <div class="flex items-center justify-between h-20 gap-4 sm:gap-6">
       
-      <!-- Marca / Logo -->
-      <a href="/" class="flex items-center gap-3 group focus:outline-hidden">
-        <div class="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center text-white shadow-md shadow-sky-600/20 group-hover:bg-sky-700 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Logotipo y Nombre Comercial -->
+      <a href="/" class="flex items-center gap-3 shrink-0 group focus:outline-hidden">
+        <div class="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-md group-hover:bg-emerald-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
             <circle cx="12" cy="13" r="3"/>
           </svg>
         </div>
         <div>
-          <span class="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-sky-600 transition-colors">
-            {tienda.nombre}
-          </span>
-          <span class="hidden sm:block text-xs font-medium text-slate-500">
-            {tienda.ciudad} • Catálogo Oficial
-          </span>
+          <div class="text-2xl font-black tracking-tight text-slate-900 leading-none group-hover:text-emerald-700 transition-colors">
+            FOTOS<span class="text-emerald-700">ALBERTH</span>
+          </div>
+          <div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-600 mt-1">
+            Tecnología • Fotografía • Librería
+          </div>
         </div>
       </a>
 
-      <!-- Buscador en Vivo (Centro) -->
-      <div class="flex-1 max-w-md mx-2">
-        <div class="relative">
+      <!-- Buscador Principal Grande (Estilo Falabella) -->
+      <div class="flex-1 max-w-2xl">
+        <form class="relative flex" onsubmit="event.preventDefault();">
           <input
             type="search"
             id="buscador-productos"
-            placeholder="Buscar cuadros, fotos, marcos..."
+            placeholder="¿Qué estás buscando hoy? (ej. Cable tipo C, memoria USB, audífonos, cuadernos...)"
             autocomplete="off"
-            class="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 hover:bg-slate-200/70 focus:bg-white text-slate-900 placeholder-slate-400 rounded-full border border-transparent focus:border-sky-500 focus:outline-hidden transition-all duration-150"
+            class="w-full pl-4 pr-12 py-2.5 text-sm bg-slate-50 hover:bg-slate-100/80 focus:bg-white text-slate-900 placeholder-slate-400 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 focus:outline-hidden transition-all shadow-inner"
           />
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <button
+            type="button"
+            id="btn-lupa-buscar"
+            aria-label="Buscar productos"
+            class="absolute right-1 top-1 bottom-1 px-3.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg flex items-center justify-center transition-colors cursor-pointer"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/>
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-          </div>
-        </div>
+          </button>
+        </form>
       </div>
 
-      <!-- Botón Abrir Carrito -->
-      <button
-        type="button"
-        id="btn-abrir-carrito"
-        aria-label="Abrir Carrito de compras"
-        class="relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-sky-700 font-semibold text-sm transition-all focus:outline-hidden"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="8" cy="21" r="1"/>
-          <circle cx="19" cy="21" r="1"/>
-          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-        </svg>
-        <span class="hidden md:inline">Carrito</span>
-        <span
-          id="badge-carrito-contador"
-          class="inline-flex items-center justify-center min-w-[20px] h-5 px-1 text-xs font-bold text-white bg-sky-600 rounded-full transition-transform"
+      <!-- Acciones de Cabecera (Soporte y Carrito) -->
+      <div class="flex items-center gap-3 shrink-0">
+        <!-- Enlace a Asesor WhatsApp -->
+        <a
+          href="https://wa.me/51987654321?text=Hola%20FotosAlberth%2C%20tengo%20una%20consulta%20sobre%20sus%20productos"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hidden lg:flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
         >
-          0
-        </span>
-      </button>
+          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            </svg>
+          </div>
+          <div class="text-left text-xs leading-tight">
+            <span class="text-slate-400 block text-[10px]">¿Dudas?</span>
+            <span class="font-bold text-slate-800">Chatea con nosotros</span>
+          </div>
+        </a>
+
+        <!-- Botón de Carrito Estilo Retail -->
+        <button
+          type="button"
+          id="btn-abrir-carrito"
+          class="relative flex items-center gap-3 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer focus:outline-hidden"
+          aria-label="Ver carrito de compras"
+        >
+          <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="21" r="1"/>
+              <circle cx="19" cy="21" r="1"/>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
+            <span
+              id="badge-carrito-contador"
+              class="absolute -top-2 -right-2.5 min-w-[20px] h-5 px-1 bg-emerald-500 text-slate-950 font-black text-[11px] rounded-full flex items-center justify-center shadow-xs"
+            >
+              0
+            </span>
+          </div>
+          <div class="text-left hidden sm:block">
+            <span class="text-[10px] text-slate-400 block font-medium leading-none">Mi Carrito</span>
+            <span id="label-carrito-total-header" class="text-xs font-mono font-bold text-emerald-400">S/ 0.00</span>
+          </div>
+        </button>
+      </div>
 
     </div>
   </div>
+
+  <!-- Barra de Departamentos / Categorías (Estilo Falabella) -->
+  <nav class="bg-slate-50 border-t border-slate-200 text-xs font-semibold overflow-x-auto scrollbar-none">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 sm:gap-2 h-11 whitespace-nowrap">
+      
+      <button
+        type="button"
+        data-nav-categoria="todas"
+        class="nav-departamento-btn active px-3.5 py-1.5 rounded-lg text-emerald-800 bg-emerald-100 font-extrabold flex items-center gap-1.5 transition-colors cursor-pointer"
+      >
+        <span>☰ Todos los Departamentos</span>
+      </button>
+
+      {categoriasPrincipales.map(cat => (
+        <button
+          type="button"
+          data-nav-categoria={cat.id}
+          class="nav-departamento-btn px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-white transition-colors cursor-pointer flex items-center gap-1"
+        >
+          <span>{cat.nombre}</span>
+          <span class="text-[10px] font-normal text-slate-400">({cat.total_productos})</span>
+        </button>
+      ))}
+
+    </div>
+  </nav>
 </header>
 
 <script>
-  // Conectar el buscador global con la página
+  // Conexión del buscador
   const inputBusqueda = document.getElementById('buscador-productos') as HTMLInputElement | null;
   inputBusqueda?.addEventListener('input', (e) => {
     const valor = (e.target as HTMLInputElement).value;
     window.dispatchEvent(new CustomEvent('catalogo:buscar', { detail: { query: valor } }));
   });
 
-  // Conectar botón del carrito
+  document.getElementById('btn-lupa-buscar')?.addEventListener('click', () => {
+    inputBusqueda?.focus();
+  });
+
+  // Conexión del botón abrir carrito
   document.getElementById('btn-abrir-carrito')?.addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('cart:open'));
   });
 
-  // Actualizar contador del header al recibir evento de carrito
+  // Evento de actualización de carrito
   window.addEventListener('cart:change', ((e: CustomEvent) => {
     const contador = document.getElementById('badge-carrito-contador');
+    const totalHeader = document.getElementById('label-carrito-total-header');
     if (contador) {
-      const cantidad = e.detail?.totalItems || 0;
-      contador.textContent = String(cantidad);
-      contador.classList.remove('scale-125');
-      void contador.offsetWidth; // trigger reflow
-      contador.classList.add('scale-125');
-      setTimeout(() => contador.classList.remove('scale-125'), 200);
+      contador.textContent = String(e.detail?.totalItems || 0);
+    }
+    if (totalHeader) {
+      totalHeader.textContent = `S/ ${(e.detail?.total || 0).toFixed(2)}`;
     }
   }) as EventListener);
+
+  // Navegación por departamentos
+  document.querySelectorAll('.nav-departamento-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-departamento-btn').forEach(b => {
+        b.classList.remove('active', 'text-emerald-800', 'bg-emerald-100', 'font-extrabold');
+        b.classList.add('text-slate-700');
+      });
+      btn.classList.add('active', 'text-emerald-800', 'bg-emerald-100', 'font-extrabold');
+      btn.classList.remove('text-slate-700');
+
+      const catId = btn.getAttribute('data-nav-categoria') || 'todas';
+      window.dispatchEvent(new CustomEvent('catalogo:categoria', { detail: { categoriaId: catId } }));
+    });
+  });
 </script>

@@ -5,81 +5,268 @@ import { obtenerCatalogo } from '../lib/catalogo/snapshot';
 
 const catalogo = await obtenerCatalogo();
 const { tienda, categorias, productos } = catalogo;
+
+// Departamentos destacados para vitrinas promocionales
+const deptoCables = categorias.find(c => c.nombre.includes('CABLES')) || categorias[2];
+const deptoParlantes = categorias.find(c => c.nombre.includes('PARLANTES')) || categorias[1];
+const deptoUtiles = categorias.find(c => c.nombre.includes('ÚTILES') || c.nombre.includes('UTILES')) || categorias[0];
 ---
 
 <Layout
-  title="Catálogo Virtual y Tienda Online"
-  description={`Catálogo de fotos, marcos y cuadros en ${tienda.ciudad}. Pide directo por WhatsApp sin costos extra.`}
+  title="Catálogo Oficial y Tienda Virtual"
+  description={`Catálogo de tecnología, audio, cables, librería e insumos de impresión en ${tienda.ciudad}. Precios oficiales y pedidos directos por WhatsApp.`}
   tienda={tienda}
+  categorias={categorias}
 >
-  <!-- Barra de aviso superior -->
-  <div class="mb-6 p-3 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-between gap-3 text-xs text-sky-800 shadow-2xs">
-    <div class="flex items-center gap-2 font-medium">
-      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-200/70 text-sky-700 font-bold">✓</span>
-      <span>Precios oficiales sincronizados con nuestro taller. Recojo en tienda o envíos a todo el país.</span>
+  <!-- 1. Franja de Confianza y Garantías Retail (Estilo Falabella / MercadoLibre) -->
+  <section class="mb-8" aria-label="Beneficios y Garantías">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="16" height="12" x="1" y="3" rx="2"/>
+            <path d="M5 19v-4M19 19v-4M9 19h6"/>
+            <circle cx="12" cy="9" r="2"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Envíos en Trujillo</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Entregas a domicilio o trabajo</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Recojo en Taller</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Sin costo de envío en tienda</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="14" x="2" y="5" rx="2"/>
+            <line x1="2" x2="22" y1="10" y2="10"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Yape, Plin y BCP</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Paga contraentrega o previo</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xs font-extrabold text-slate-900 leading-tight">Garantía en Taller</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Asesoría de compatibilidad</p>
+        </div>
+      </div>
+
     </div>
-    <span class="hidden sm:inline font-bold uppercase tracking-wider text-[10px] text-sky-600 bg-white px-2.5 py-1 rounded-full border border-sky-200">
-      WhatsApp Directo
-    </span>
-  </div>
+  </section>
 
-  <!-- Filtro por Categorías (Chips / Pestañas) -->
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-500">
-        Categorías
-      </h2>
-      <span id="contador-productos-visibles" class="text-xs font-semibold text-slate-400">
-        {productos.length} productos disponibles
-      </span>
+  <!-- 2. Banners Promocionales de Vitrina (Estilo Falabella Hero Grid) -->
+  <section class="mb-8" aria-label="Vitrinas Destacadas">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <!-- Vitrina 1: Conectividad y Cables -->
+      <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-5 overflow-hidden shadow-sm flex flex-col justify-between min-h-[170px] group">
+        <div class="absolute right-[-15px] bottom-[-15px] opacity-10 group-hover:opacity-20 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="6" y="8" width="12" height="8" rx="2"/>
+            <path d="M12 2v6m0 8v6M5 8h14M7 8V4m10 4V4"/>
+          </svg>
+        </div>
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 mb-2">
+            Conectividad & Carga
+          </span>
+          <h3 class="text-lg font-black leading-tight text-white">
+            Cables, Adaptadores & OTG
+          </h3>
+          <p class="text-xs text-slate-300 mt-1 max-w-[220px]">
+            Tipo-C, HDMI, Auxiliares, fuentes y conectores probados.
+          </p>
+        </div>
+        <div class="pt-3">
+          <button
+            type="button"
+            data-banner-filtro={deptoCables ? deptoCables.id : '2'}
+            class="banner-cta-btn inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 hover:bg-emerald-600 px-3 py-1.5 rounded-lg backdrop-blur-xs transition-colors cursor-pointer"
+          >
+            <span>Explorar {deptoCables ? `(${deptoCables.total_productos})` : ''}</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vitrina 2: Audio y Parlantes -->
+      <div class="relative bg-gradient-to-br from-emerald-950 to-emerald-800 text-white rounded-2xl p-5 overflow-hidden shadow-sm flex flex-col justify-between min-h-[170px] group">
+        <div class="absolute right-[-15px] bottom-[-15px] opacity-10 group-hover:opacity-20 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect width="16" height="20" x="4" y="2" rx="2"/>
+            <circle cx="12" cy="14" r="4"/>
+          </svg>
+        </div>
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 mb-2">
+            Audio Portátil
+          </span>
+          <h3 class="text-lg font-black leading-tight text-white">
+            Parlantes, Radios & Audífonos
+          </h3>
+          <p class="text-xs text-emerald-100 mt-1 max-w-[220px]">
+            Sonido Bluetooth, radios FM retro, vinchas y audífonos manos libres.
+          </p>
+        </div>
+        <div class="pt-3">
+          <button
+            type="button"
+            data-banner-filtro={deptoParlantes ? deptoParlantes.id : '4'}
+            class="banner-cta-btn inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 hover:bg-amber-500 hover:text-slate-950 px-3 py-1.5 rounded-lg backdrop-blur-xs transition-colors cursor-pointer"
+          >
+            <span>Explorar {deptoParlantes ? `(${deptoParlantes.total_productos})` : ''}</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vitrina 3: Útiles y Librería -->
+      <div class="relative bg-gradient-to-br from-blue-950 to-slate-900 text-white rounded-2xl p-5 overflow-hidden shadow-sm flex flex-col justify-between min-h-[170px] group">
+        <div class="absolute right-[-15px] bottom-[-15px] opacity-10 group-hover:opacity-20 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-400 text-slate-950 mb-2">
+            Oficina & Escolar
+          </span>
+          <h3 class="text-lg font-black leading-tight text-white">
+            Útiles, Librería & Tintas
+          </h3>
+          <p class="text-xs text-slate-300 mt-1 max-w-[220px]">
+            Cuadernos, plumones, resmas, tintas continuas y papelería.
+          </p>
+        </div>
+        <div class="pt-3">
+          <button
+            type="button"
+            data-banner-filtro={deptoUtiles ? deptoUtiles.id : '11'}
+            class="banner-cta-btn inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 hover:bg-sky-500 hover:text-slate-950 px-3 py-1.5 rounded-lg backdrop-blur-xs transition-colors cursor-pointer"
+          >
+            <span>Explorar {deptoUtiles ? `(${deptoUtiles.total_productos})` : ''}</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. Barra de Control Retail (Filtros por Categoría, Stock y Ordenamiento) -->
+  <section class="mb-6 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs" aria-label="Filtros del Catálogo">
+    
+    <!-- Fila 1: Título, Contador dinámico y Ordenamiento -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      <div>
+        <h2 class="text-base font-black text-slate-900 tracking-tight">
+          Catálogo de Productos
+        </h2>
+        <span id="contador-productos-visibles" class="text-xs font-semibold text-slate-500">
+          Mostrando {productos.length} productos disponibles
+        </span>
+      </div>
+
+      <!-- Controles de ordenamiento y stock -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Toggle Solo En Stock -->
+        <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 cursor-pointer transition-colors">
+          <input type="checkbox" id="filtro-solo-stock" class="rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+          <span>Solo en stock</span>
+        </label>
+
+        <!-- Selector de Orden -->
+        <div class="relative inline-flex items-center">
+          <select
+            id="selector-orden"
+            class="text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 focus:border-emerald-600 focus:outline-hidden cursor-pointer"
+          >
+            <option value="destacados">Destacados</option>
+            <option value="precio-menor">Precio: Menor a Mayor</option>
+            <option value="precio-mayor">Precio: Mayor a Menor</option>
+            <option value="nombre">Nombre: A - Z</option>
+            <option value="stock">Mayor Stock</option>
+          </select>
+        </div>
+      </div>
     </div>
 
-    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="chips-categorias">
-      <button
-        type="button"
-        data-categoria-filtro="todas"
-        class="chip-categoria active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-sky-600 text-white shadow-sm cursor-pointer whitespace-nowrap"
-      >
-        Todas ({productos.length})
-      </button>
-
-      {categorias.map(cat => (
+    <!-- Fila 2: Chips Deslizables de Categorías -->
+    <div class="pt-3">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="chips-categorias">
         <button
           type="button"
-          data-categoria-filtro={cat.id}
-          class="chip-categoria px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs cursor-pointer whitespace-nowrap"
+          data-categoria-filtro="todas"
+          class="chip-categoria active px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-emerald-700 text-white shadow-xs cursor-pointer whitespace-nowrap"
         >
-          {cat.nombre} ({cat.total_productos})
+          Todos ({productos.length})
         </button>
-      ))}
-    </div>
-  </div>
 
-  <!-- Grilla de Productos -->
-  <section aria-label="Productos de la tienda">
+        {categorias.map(cat => (
+          <button
+            type="button"
+            data-categoria-filtro={String(cat.id)}
+            class="chip-categoria px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer whitespace-nowrap"
+          >
+            {cat.nombre} <span class="text-slate-400 font-normal">({cat.total_productos})</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+  </section>
+
+  <!-- 4. Grilla de Productos de la Tienda -->
+  <section aria-label="Listado de productos">
     <div
       id="grilla-productos"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5"
     >
       {productos.map(prod => (
         <ProductCard producto={prod} simbolo={tienda.simbolo} />
       ))}
     </div>
 
-    <!-- Estado vacío de búsqueda -->
-    <div id="busqueda-sin-resultados" class="hidden py-16 text-center">
+    <!-- Estado Vacío cuando no hay resultados de búsqueda -->
+    <div id="busqueda-sin-resultados" class="hidden py-16 text-center bg-white rounded-2xl border border-slate-200/90 shadow-2xs mt-4">
       <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </div>
-      <h3 class="text-base font-bold text-slate-800">No encontramos resultados</h3>
-      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Prueba buscando con otras palabras o selecciona otra categoría.</p>
+      <h3 class="text-base font-extrabold text-slate-900">No encontramos productos coincidentes</h3>
+      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        Prueba con otro término de búsqueda o selecciona otra categoría.
+      </p>
       <button
         type="button"
         id="btn-limpiar-filtros"
-        class="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors cursor-pointer"
+        class="mt-4 px-4 py-2 rounded-xl text-xs font-extrabold bg-emerald-700 text-white hover:bg-emerald-800 transition-colors cursor-pointer shadow-xs"
       >
         Ver todos los productos
       </button>
@@ -88,29 +275,39 @@ const { tienda, categorias, productos } = catalogo;
 </Layout>
 
 <script>
-  // Lógica de filtrado en cliente (instantánea y reactiva)
+  // Control de Estado y Filtrado Dinámico en Cliente (Ultra Rápido)
   let filtroCategoriaActual = 'todas';
   let terminoBusquedaActual = '';
+  let soloStockActual = false;
+  let ordenActual = 'destacados';
 
-  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto')) as HTMLElement[];
+  const grilla = document.getElementById('grilla-productos');
   const contadorVisibles = document.getElementById('contador-productos-visibles');
   const sinResultados = document.getElementById('busqueda-sin-resultados');
-  const grilla = document.getElementById('grilla-productos');
   const chips = document.querySelectorAll('.chip-categoria');
+  const checkSoloStock = document.getElementById('filtro-solo-stock') as HTMLInputElement | null;
+  const selectOrden = document.getElementById('selector-orden') as HTMLSelectElement | null;
+  const inputBuscador = document.getElementById('buscador-productos') as HTMLInputElement | null;
 
-  function aplicarFiltros() {
+  // Obtener todas las tarjetas
+  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto')) as HTMLElement[];
+
+  function aplicarFiltrosYOrden() {
     let visibles = 0;
     const query = terminoBusquedaActual.toLowerCase().trim();
 
+    // 1. Filtrar visibilidad
     tarjetas.forEach(tarjeta => {
       const catId = tarjeta.getAttribute('data-categoria-id');
       const nombre = tarjeta.getAttribute('data-nombre') || '';
       const sku = tarjeta.getAttribute('data-sku') || '';
+      const stock = Number(tarjeta.getAttribute('data-stock') || 0);
 
       const coincideCategoria = filtroCategoriaActual === 'todas' || catId === filtroCategoriaActual;
       const coincideBusqueda = !query || nombre.includes(query) || sku.includes(query);
+      const coincideStock = !soloStockActual || stock > 0;
 
-      if (coincideCategoria && coincideBusqueda) {
+      if (coincideCategoria && coincideBusqueda && coincideStock) {
         tarjeta.style.display = '';
         visibles++;
       } else {
@@ -118,8 +315,29 @@ const { tienda, categorias, productos } = catalogo;
       }
     });
 
+    // 2. Ordenar tarjetas visibles en el DOM si es necesario
+    if (grilla && ordenActual !== 'destacados') {
+      const tarjetasArray = Array.from(grilla.children) as HTMLElement[];
+      tarjetasArray.sort((a, b) => {
+        const precioA = Number(a.getAttribute('data-precio') || 0);
+        const precioB = Number(b.getAttribute('data-precio') || 0);
+        const nombreA = a.getAttribute('data-nombre') || '';
+        const nombreB = b.getAttribute('data-nombre') || '';
+        const stockA = Number(a.getAttribute('data-stock') || 0);
+        const stockB = Number(b.getAttribute('data-stock') || 0);
+
+        if (ordenActual === 'precio-menor') return precioA - precioB;
+        if (ordenActual === 'precio-mayor') return precioB - precioA;
+        if (ordenActual === 'nombre') return nombreA.localeCompare(nombreB);
+        if (ordenActual === 'stock') return stockB - stockA;
+        return 0;
+      });
+      tarjetasArray.forEach(el => grilla.appendChild(el));
+    }
+
+    // 3. Actualizar textos de contador y estados vacíos
     if (contadorVisibles) {
-      contadorVisibles.textContent = `${visibles} producto${visibles === 1 ? '' : 's'} disponible${visibles === 1 ? '' : 's'}`;
+      contadorVisibles.textContent = `Mostrando ${visibles} producto${visibles === 1 ? '' : 's'} disponible${visibles === 1 ? '' : 's'}`;
     }
 
     if (sinResultados && grilla) {
@@ -133,46 +351,75 @@ const { tienda, categorias, productos } = catalogo;
     }
   }
 
-  // Escuchar búsqueda desde el Header
-  window.addEventListener('catalogo:buscar', ((e: CustomEvent) => {
-    terminoBusquedaActual = e.detail?.query || '';
-    aplicarFiltros();
-  }) as EventListener);
+  // Activar chip visualmente
+  function activarChip(categoriaId: string) {
+    filtroCategoriaActual = categoriaId;
+    chips.forEach(c => {
+      const cId = c.getAttribute('data-categoria-filtro');
+      if (cId === categoriaId) {
+        c.classList.add('active', 'bg-emerald-700', 'text-white', 'shadow-xs');
+        c.classList.remove('bg-slate-50', 'text-slate-700', 'border');
+        c.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      } else {
+        c.classList.remove('active', 'bg-emerald-700', 'text-white', 'shadow-xs');
+        c.classList.add('bg-slate-50', 'text-slate-700', 'border');
+      }
+    });
+    aplicarFiltrosYOrden();
+  }
 
-  // Escuchar clics en chips de categorías
+  // Clics en chips
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
-      chips.forEach(c => {
-        c.classList.remove('active', 'bg-sky-600', 'text-white', 'shadow-sm');
-        c.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-      });
-
-      chip.classList.add('active', 'bg-sky-600', 'text-white', 'shadow-sm');
-      chip.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-
-      filtroCategoriaActual = chip.getAttribute('data-categoria-filtro') || 'todas';
-      aplicarFiltros();
+      const id = chip.getAttribute('data-categoria-filtro') || 'todas';
+      activarChip(id);
     });
   });
 
-  // Botón limpiar filtros
-  document.getElementById('btn-limpiar-filtros')?.addEventListener('click', () => {
-    terminoBusquedaActual = '';
-    filtroCategoriaActual = 'todas';
-
-    const inputBuscador = document.getElementById('buscador-productos') as HTMLInputElement | null;
-    if (inputBuscador) inputBuscador.value = '';
-
-    chips.forEach((c, idx) => {
-      if (idx === 0) {
-        c.classList.add('active', 'bg-sky-600', 'text-white', 'shadow-sm');
-        c.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-      } else {
-        c.classList.remove('active', 'bg-sky-600', 'text-white', 'shadow-sm');
-        c.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+  // Banners CTA clics
+  document.querySelectorAll('[data-banner-filtro]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-banner-filtro');
+      if (id) {
+        activarChip(id);
+        grilla?.scrollIntoView({ behavior: 'smooth' });
       }
     });
+  });
 
-    aplicarFiltros();
+  // Evento global desde el Header
+  window.addEventListener('catalogo:categoria', ((e: CustomEvent) => {
+    const id = String(e.detail?.categoriaId || 'todas');
+    activarChip(id);
+  }) as EventListener);
+
+  window.addEventListener('catalogo:buscar', ((e: CustomEvent) => {
+    terminoBusquedaActual = e.detail?.query || '';
+    aplicarFiltrosYOrden();
+  }) as EventListener);
+
+  // Filtro Solo en stock
+  checkSoloStock?.addEventListener('change', (e) => {
+    soloStockActual = (e.target as HTMLInputElement).checked;
+    aplicarFiltrosYOrden();
+  });
+
+  // Selector de Orden
+  selectOrden?.addEventListener('change', (e) => {
+    ordenActual = (e.target as HTMLSelectElement).value;
+    aplicarFiltrosYOrden();
+  });
+
+  // Botón Limpiar Filtros
+  document.getElementById('btn-limpiar-filtros')?.addEventListener('click', () => {
+    terminoBusquedaActual = '';
+    soloStockActual = false;
+    ordenActual = 'destacados';
+
+    if (inputBuscador) inputBuscador.value = '';
+    if (checkSoloStock) checkSoloStock.checked = false;
+    if (selectOrden) selectOrden.value = 'destacados';
+
+    activarChip('todas');
   });
 </script>

@@ -8,79 +8,273 @@ interface Props {
 
 const { producto, simbolo = 'S/' } = Astro.props;
 const tieneStock = producto.stock > 0 && producto.disponible;
-const imagenPrincipal = producto.fotos[0] || 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80';
+const tieneFotoReal = producto.fotos && producto.fotos.length > 0;
+const fotoReal = tieneFotoReal ? producto.fotos[0] : null;
 const tieneOferta = producto.precio_anterior && producto.precio_anterior > producto.precio;
+const porcentajeDescuento = tieneOferta && producto.precio_anterior
+  ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
+  : 0;
+
+// Determinar icono e identidad visual por categoría
+const catNombre = (producto.categoria || '').toUpperCase();
+let iconoTipo = 'paquete';
+
+if (catNombre.includes('CABLE') || catNombre.includes('CONECTIVIDAD')) {
+  iconoTipo = 'cable';
+} else if (catNombre.includes('PARLANTE') || catNombre.includes('RADIO')) {
+  iconoTipo = 'parlante';
+} else if (catNombre.includes('AUDÍFONO') || catNombre.includes('AUDIFONO')) {
+  iconoTipo = 'audifono';
+} else if (catNombre.includes('LIBRERÍA') || catNombre.includes('LIBRERIA') || catNombre.includes('ÚTILES') || catNombre.includes('UTILES')) {
+  iconoTipo = 'libreria';
+} else if (catNombre.includes('MOUSE') || catNombre.includes('TECLADO') || catNombre.includes('PAD')) {
+  iconoTipo = 'mouse';
+} else if (catNombre.includes('PILA') || catNombre.includes('BATERIA') || catNombre.includes('BATERÍA')) {
+  iconoTipo = 'bateria';
+} else if (catNombre.includes('CELULAR')) {
+  iconoTipo = 'celular';
+} else if (catNombre.includes('TINTA') || catNombre.includes('IMPRESI')) {
+  iconoTipo = 'tinta';
+} else if (catNombre.includes('CARGADOR')) {
+  iconoTipo = 'cargador';
+} else if (catNombre.includes('MEMORIA') || catNombre.includes('ALMACENAMIENTO')) {
+  iconoTipo = 'memoria';
+} else if (catNombre.includes('ADAPTADOR')) {
+  iconoTipo = 'adaptador';
+} else if (catNombre.includes('CALCULADORA')) {
+  iconoTipo = 'calculadora';
+} else if (catNombre.includes('CONTROL')) {
+  iconoTipo = 'control';
+} else if (catNombre.includes('FOTO')) {
+  iconoTipo = 'foto';
+} else if (catNombre.includes('LINTERNA') || catNombre.includes('ILUMINACI')) {
+  iconoTipo = 'luz';
+}
+
+const botonClase = tieneStock
+  ? 'bg-slate-900 hover:bg-emerald-700 text-white shadow-xs hover:shadow-md cursor-pointer active:scale-[0.98]'
+  : 'bg-slate-100 text-slate-400 cursor-not-allowed';
 ---
 
 <article
-  class="group relative flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 tarjeta-producto"
+  class="group relative flex flex-col bg-white rounded-2xl border border-slate-200/90 hover:border-emerald-500/70 shadow-xs hover:shadow-xl transition-all duration-200 overflow-hidden tarjeta-producto"
   data-id={producto.id}
   data-categoria-id={producto.categoria_id}
+  data-categoria-nombre={producto.categoria}
   data-nombre={producto.nombre.toLowerCase()}
   data-sku={producto.sku.toLowerCase()}
+  data-precio={producto.precio}
+  data-stock={producto.stock}
 >
-  <!-- Imagen del Producto -->
-  <a href={`/producto/${producto.slug}`} class="block relative aspect-4/3 overflow-hidden bg-slate-100">
-    <img
-      src={imagenPrincipal}
-      alt={producto.nombre}
-      loading="lazy"
-      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-    />
+  <!-- Cabecera de la Tarjeta: Badge de Categoría y SKU -->
+  <div class="px-3.5 pt-3 pb-1.5 flex items-center justify-between text-[11px] border-b border-slate-100 bg-slate-50/60">
+    <span class="font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md truncate max-w-[170px]" title={producto.categoria}>
+      {producto.categoria}
+    </span>
+    <span class="font-mono text-slate-500 font-medium shrink-0" title={`SKU: ${producto.sku}`}>
+      {producto.sku || 'REF'}
+    </span>
+  </div>
+
+  <!-- Imagen / Representación Visual (Aspecto Cuadrado 1:1 Retail) -->
+  <a
+    href={`/producto/${producto.slug}`}
+    class="block relative aspect-square w-full overflow-hidden bg-gradient-to-b from-slate-50/50 to-slate-100/70 p-4 flex items-center justify-center focus:outline-hidden"
+  >
+    {tieneFotoReal ? (
+      <img
+        src={fotoReal}
+        alt={producto.nombre}
+        loading="lazy"
+        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+      />
+    ) : (
+      <!-- Gráfico Vectorial Curado por Departamento cuando no hay foto subida aún -->
+      <div class="w-full h-full flex flex-col items-center justify-center p-3 text-center select-none">
+        <div class="w-16 h-16 rounded-2xl bg-white shadow-xs border border-slate-200/80 flex items-center justify-center text-slate-700 group-hover:text-emerald-700 group-hover:border-emerald-300 transition-colors">
+          {iconoTipo === 'cable' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v6m0 8v6M5 8h14M7 8V4m10 4V4"/>
+              <rect x="6" y="8" width="12" height="8" rx="2"/>
+            </svg>
+          )}
+          {iconoTipo === 'parlante' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="16" height="20" x="4" y="2" rx="2"/>
+              <circle cx="12" cy="14" r="4"/>
+              <line x1="12" x2="12.01" y1="6" y2="6"/>
+            </svg>
+          )}
+          {iconoTipo === 'audifono' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
+            </svg>
+          )}
+          {iconoTipo === 'libreria' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+              <path d="M6 6h10M6 10h10M6 14h6"/>
+            </svg>
+          )}
+          {iconoTipo === 'mouse' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="7"/>
+              <line x1="12" y1="6" x2="12" y2="10"/>
+            </svg>
+          )}
+          {iconoTipo === 'bateria' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="16" height="10" x="2" y="7" rx="2"/>
+              <line x1="22" x2="22" y1="11" y2="13"/>
+              <line x1="6" y1="12" x2="10" y2="12"/>
+            </svg>
+          )}
+          {iconoTipo === 'celular' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="20" x="5" y="2" rx="2"/>
+              <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+          )}
+          {iconoTipo === 'tinta' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+          )}
+          {iconoTipo === 'cargador' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          )}
+          {iconoTipo === 'memoria' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h12l4 4v12H4z"/>
+              <path d="M8 4v4h8V4M8 14h8"/>
+            </svg>
+          )}
+          {iconoTipo === 'calculadora' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="16" height="20" x="4" y="2" rx="2"/>
+              <line x1="8" y1="6" x2="16" y2="6"/>
+              <line x1="8" y1="10" x2="8.01" y2="10"/>
+              <line x1="12" y1="10" x2="12.01" y2="10"/>
+              <line x1="16" y1="10" x2="16.01" y2="10"/>
+            </svg>
+          )}
+          {iconoTipo === 'control' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="10" height="20" x="7" y="2" rx="2"/>
+              <circle cx="12" cy="7" r="1.5"/>
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="12" cy="16" r="1"/>
+            </svg>
+          )}
+          {iconoTipo === 'foto' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+              <circle cx="12" cy="13" r="3"/>
+            </svg>
+          )}
+          {iconoTipo === 'paquete' && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+              <path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>
+            </svg>
+          )}
+        </div>
+        <div class="mt-2 text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">
+          FOTOSALBERTH
+        </div>
+        {producto.familia && (
+          <div class="text-[11px] font-medium text-slate-500 line-clamp-1 max-w-[150px] mt-0.5">
+            {producto.familia}
+          </div>
+        )}
+      </div>
+    )}
+
+    <!-- Badge de Descuento (si tiene precio anterior) -->
+    {tieneOferta && tieneStock && (
+      <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[11px] font-black bg-rose-600 text-white shadow-xs">
+        -{porcentajeDescuento}%
+      </span>
+    )}
+
+    <!-- Badge de Urgencia / Stock Bajo (Estilo MercadoLibre / Falabella) -->
+    {tieneStock && producto.stock <= 3 && (
+      <span class="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-slate-950 shadow-xs flex items-center gap-1">
+        <span>⚡</span> ¡Solo {producto.stock} en tienda!
+      </span>
+    )}
 
     <!-- Badge de Agotado -->
     {!tieneStock && (
-      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center">
-        <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center">
+        <span class="px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
           Agotado
         </span>
       </div>
     )}
-
-    <!-- Badge de Oferta -->
-    {tieneStock && tieneOferta && (
-      <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-500 text-white shadow-sm">
-        Oferta
-      </span>
-    )}
-
-    <!-- Categoría Chip -->
-    <span class="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-white/90 backdrop-blur-xs text-slate-700 shadow-xs">
-      {producto.categoria}
-    </span>
   </a>
 
-  <!-- Contenido -->
-  <div class="flex-1 p-4 flex flex-col justify-between gap-3">
+  <!-- Contenido y Metadatos del Producto -->
+  <div class="flex-1 p-3.5 flex flex-col justify-between gap-3">
     <div>
-      <div class="text-[11px] font-mono text-slate-400 mb-1">
-        SKU: {producto.sku || 'N/A'}
-      </div>
-      <h3 class="font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-sky-600 transition-colors">
+      <!-- Familia o Marca secundaria -->
+      {producto.familia && (
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide block truncate mb-0.5">
+          {producto.familia}
+        </span>
+      )}
+
+      <!-- Título Comercial -->
+      <h3 class="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
         <a href={`/producto/${producto.slug}`} class="focus:outline-hidden">
           {producto.nombre}
         </a>
       </h3>
+
+      <!-- Respaldo / Garantía de Taller -->
+      <div class="flex items-center gap-1 text-[11px] text-emerald-700 font-semibold mt-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Garantía en Taller</span>
+      </div>
     </div>
 
-    <!-- Precios y Acción -->
-    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-      <div>
-        <div class="flex items-baseline gap-1.5">
-          <span class="text-lg font-black text-slate-900 tracking-tight">
-            {simbolo} {producto.precio.toFixed(2)}
+    <!-- Precios y Botón de Compra -->
+    <div class="pt-2.5 border-t border-slate-100 flex flex-col gap-2">
+      <div class="flex items-baseline justify-between">
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+            Precio Tienda
           </span>
-          {tieneOferta && (
-            <span class="text-xs text-slate-400 line-through">
-              {simbolo} {producto.precio_anterior?.toFixed(2)}
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-lg sm:text-xl font-black text-slate-950 font-mono tracking-tight">
+              {simbolo} {producto.precio.toFixed(2)}
             </span>
+            {tieneOferta && (
+              <span class="text-xs text-slate-400 line-through font-mono">
+                {simbolo} {producto.precio_anterior?.toFixed(2)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <!-- Indicador de Disponibilidad -->
+        <div class="text-right">
+          {tieneStock ? (
+            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              {producto.stock > 3 ? `${producto.stock} unids.` : `${producto.stock} restan`}
+            </span>
+          ) : (
+            <span class="text-[11px] font-bold text-rose-500">Sin stock</span>
           )}
         </div>
-        <span class="text-[11px] text-slate-500 block">
-          {tieneStock ? `${producto.stock} disponibles` : 'Sin stock'}
-        </span>
       </div>
 
+      <!-- Botón de Acción Directo -->
       <button
         type="button"
         disabled={!tieneStock}
@@ -92,26 +286,25 @@ const tieneOferta = producto.precio_anterior && producto.precio_anterior > produ
           slug: producto.slug,
           precio: producto.precio,
           stock: producto.stock,
-          foto: imagenPrincipal,
+          foto: fotoReal || '',
           categoria: producto.categoria,
           disponible: producto.disponible
         })}
-        class={`inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold transition-all focus:outline-hidden ${
-          tieneStock
-            ? 'bg-sky-600 hover:bg-sky-700 text-white shadow-sm hover:shadow-md cursor-pointer active:scale-95'
-            : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-        }`}
+        class:list={[
+          'w-full py-2.5 px-3 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all focus:outline-hidden',
+          botonClase
+        ]}
       >
         {tieneStock ? (
           <>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Agregar
+            <span>Agregar al Carrito</span>
           </>
         ) : (
-          'Agotado'
+          <span>No disponible</span>
         )}
       </button>
     </div>

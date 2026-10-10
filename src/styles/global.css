@@ -2,52 +2,47 @@
 
 @layer base {
   :root {
-    --color-fondo: #f8fafc;
+    --color-fondo: #f4f6f8;
     --color-superficie: #ffffff;
-    --color-borde: #e2e8f0;
-    --color-texto: #0f172a;
-    --color-texto-mutado: #64748b;
-    --color-primario: #0284c7;
-    --color-primario-hover: #0369a1;
+    --color-borde: #e5e7eb;
+    --color-texto-titulos: #111827;
+    --color-texto-cuerpo: #374151;
+    --color-texto-secundario: #6b7280;
+    
+    /* Paleta Retail Empresarial (Inspirado en Falabella / MercadoLibre) */
+    --color-primario-retail: #16a34a; /* Verde institucional retail */
+    --color-primario-retail-hover: #15803d;
+    --color-acento-naranja: #f97316; /* Badge ofertas / destacados */
+    --color-azul-corporativo: #1e40af; /* Categorías tecnología */
     --color-whatsapp: #25d366;
-    --color-whatsapp-hover: #1fb355;
-    --color-whatsapp-oscuro: #075e54;
-    --color-peligro: #ef4444;
-    --color-exito: #10b981;
+    --color-whatsapp-hover: #1ebe5d;
+    --color-alerta-agotado: #dc2626;
   }
 
   body {
     background-color: var(--color-fondo);
-    color: var(--color-texto);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: var(--color-texto-cuerpo);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* Animaciones y utilidades de soporte */
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+/* Efectos y Elevaciones Retail */
+.sombra-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.sombra-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
 }
 
-.anim-slide-in {
-  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
-
-.anim-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

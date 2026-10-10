@@ -3,6 +3,9 @@ import type { InfoTienda } from '../catalogo/tipos';
 
 export interface DatosCliente {
   nombre?: string;
+  entrega?: 'tienda' | 'delivery' | string;
+  direccion?: string;
+  metodoPago?: 'yape' | 'plin' | 'transferencia' | 'efectivo' | string;
   notas?: string;
 }
 
@@ -30,11 +33,36 @@ export function generarMensajePedido(
 
   const lineas: string[] = [];
 
-  lineas.push(`👋 *¡Hola ${tienda.nombre}! Quisiera realizar el siguiente pedido:*`);
+  lineas.push(`🛒 *¡Hola ${tienda.nombre}! Quisiera realizar el siguiente pedido:*`);
   lineas.push('');
 
   if (cliente?.nombre && cliente.nombre.trim()) {
     lineas.push(`👤 *Cliente:* ${cliente.nombre.trim()}`);
+  }
+
+  // Modalidad de entrega
+  if (cliente?.entrega === 'delivery') {
+    lineas.push('🛵 *Modalidad:* Envío a domicilio en Trujillo');
+    if (cliente.direccion && cliente.direccion.trim()) {
+      lineas.push(`📍 *Dirección:* ${cliente.direccion.trim()}`);
+    }
+  } else if (cliente?.entrega === 'tienda') {
+    lineas.push('🏬 *Modalidad:* Recojo en Tienda / Taller (Trujillo)');
+  }
+
+  // Método de pago preferido
+  if (cliente?.metodoPago) {
+    const pagosDict: Record<string, string> = {
+      yape: 'Yape',
+      plin: 'Plin',
+      transferencia: 'Transferencia Bancaria (BCP / BBVA)',
+      efectivo: 'Efectivo contraentrega'
+    };
+    const pagoNombre = pagosDict[cliente.metodoPago] || cliente.metodoPago;
+    lineas.push(`💳 *Forma de Pago:* ${pagoNombre}`);
+  }
+
+  if (cliente?.nombre || cliente?.entrega || cliente?.metodoPago) {
     lineas.push('');
   }
 
@@ -58,7 +86,7 @@ export function generarMensajePedido(
   }
 
   lineas.push('📍 *Ciudad:* ' + (tienda.ciudad || 'Trujillo'));
-  lineas.push('¿Me confirman la disponibilidad para coordinar el pago y entrega? ¡Muchas gracias!');
+  lineas.push('¿Me confirman la disponibilidad para coordinar la entrega? ¡Muchas gracias!');
 
   return lineas.join('\n');
 }
