@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import { obtenerCatalogo } from './src/lib/catalogo/snapshot.ts';
 
-const site = process.env.PUBLIC_SITE_URL ?? 'https://tienda-fotosalberth.pages.dev';
+const site = process.env.PUBLIC_SITE_URL ?? 'https://tienda-fotosalberth.alberthflores47.workers.dev';
 
 export default defineConfig({
   site,

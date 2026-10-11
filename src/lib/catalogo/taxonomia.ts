@@ -16,7 +16,7 @@ export interface CategoriaConSubcategorias {
   subcategorias: SubcategoriaItem[];
 }
 
-function generarSlug(texto: string): string {
+export function generarSlug(texto: string): string {
   return texto
     .toLowerCase()
     .normalize('NFD')

@@ -1,0 +1,524 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { obtenerCatalogo } from '../../lib/catalogo/snapshot';
+import { construirTaxonomia, type CategoriaConSubcategorias } from '../../lib/catalogo/taxonomia';
+
+export async function getStaticPaths() {
+  const catalogo = await obtenerCatalogo();
+  const taxonomia = construirTaxonomia(catalogo.productos);
+
+  return taxonomia.map(cat => ({
+    params: { slug: cat.slug },
+    props: {
+      tienda: catalogo.tienda,
+      taxonomia,
+      categoria: cat,
+      productos: catalogo.productos.filter(p => p.categoria_id === cat.id)
+    }
+  }));
+}
+
+interface Props {
+  tienda: import('../../lib/catalogo/tipos').InfoTienda;
+  taxonomia: CategoriaConSubcategorias[];
+  categoria: CategoriaConSubcategorias;
+  productos: import('../../lib/catalogo/tipos').ProductoCatalogo[];
+}
+
+const { tienda, taxonomia, categoria, productos } = Astro.props;
+const simbolo = tienda.simbolo || 'S/';
+const totalProductos = productos.length;
+const conStock = productos.filter(p => p.disponible && p.stock > 0).length;
+
+const tituloSEO = `${categoria.nombreCorto} (${totalProductos} productos)`;
+const descripcionSEO = `Compra ${categoria.nombreCorto} en FOTOSALBERTH, ${tienda.ciudad}. ${totalProductos} productos con precios en ${simbolo} y stock real. Pedido directo por WhatsApp, envíos y recojo en taller.`;
+
+const urlCanonical = `${Astro.site ?? ''}categoria/${categoria.slug}`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: Astro.site?.toString() ?? '/' },
+    { '@type': 'ListItem', position: 2, name: categoria.nombreCorto, item: urlCanonical }
+  ]
+};
+---
+
+<Layout
+  title={tituloSEO}
+  description={descripcionSEO}
+  tienda={tienda}
+  taxonomia={taxonomia}
+  canonical={urlCanonical}
+  jsonLd={jsonLd}
+>
+  <!-- Breadcrumb SEO (Sercoplus-style: Inicio › Categoría) -->
+  <nav aria-label="Miga de pan" class="mb-3 text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
+    <a href="/" class="font-semibold text-slate-700 hover:text-emerald-700 transition-colors">Inicio</a>
+    <span class="text-slate-300">›</span>
+    <span class="font-semibold text-slate-900">{categoria.nombreCorto}</span>
+  </nav>
+
+  <!-- Título de Categoría (estilo Sercoplus: nombre + conteo) -->
+  <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+        {categoria.nombreCorto}
+      </h1>
+      <p class="text-xs text-slate-500 mt-1">
+        <span id="contador-categoria">Mostrando 1-{Math.min(12, totalProductos)} de {totalProductos} producto(s)</span>
+        <span class="text-slate-300 mx-1.5">•</span>
+        <span>Precios en {simbolo} (Soles)</span>
+      </p>
+    </div>
+
+    <!-- Orden (idéntico a Sercoplus) -->
+    <div class="flex items-center gap-2 text-xs">
+      <label for="orden-categoria" class="font-semibold text-slate-500 shrink-0">Ordenar por:</label>
+      <select
+        id="orden-categoria"
+        class="font-semibold text-slate-700 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-hidden cursor-pointer"
+      >
+        <option value="relevancia">Relevancia</option>
+        <option value="precio-menor">Precio: de más bajo a más alto</option>
+        <option value="precio-mayor">Precio: de más alto a más bajo</option>
+        <option value="nombre">Nombre, A a Z</option>
+        <option value="nombre-desc">Nombre, Z a A</option>
+        <option value="stock">Mayor stock</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Cuerpo: Sidebar Facets + Grilla (analogía directa con Sercoplus) -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+
+    <!-- SIDEBAR DE FILTROS (facets) -->
+    <aside class="lg:col-span-1 space-y-3.5" aria-label="Filtros de productos">
+
+      <!-- Facet: Líneas (familias) -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
+        <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-100">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900">Líneas</h2>
+          <button
+            type="button"
+            id="btn-limpiar-lineas"
+            class="hidden text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer"
+          >
+            Limpiar
+          </button>
+        </div>
+        <ul class="space-y-1">
+          {categoria.subcategorias.map(sub => (
+            <li>
+              <label class="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer group">
+                <span class="flex items-center gap-2 min-w-0">
+                  <input
+                    type="checkbox"
+                    class="filtro-linea rounded text-emerald-600 cursor-pointer shrink-0"
+                    value={sub.slug}
+                    data-nombre={sub.nombre}
+                  />
+                  <span class="text-xs text-slate-700 group-hover:text-slate-900 truncate">
+                    {sub.nombre}
+                  </span>
+                </span>
+                <span class="text-[11px] font-mono text-slate-400 shrink-0">({sub.total})</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Facet: Disponibilidad -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 pb-2.5 mb-2.5 border-b border-slate-100">
+          Disponibilidad
+        </h2>
+        <label class="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer group">
+          <span class="flex items-center gap-2">
+            <input type="checkbox" id="filtro-solo-stock" class="rounded text-emerald-600 cursor-pointer" />
+            <span class="text-xs text-slate-700 group-hover:text-slate-900">En stock</span>
+          </span>
+          <span class="text-[11px] font-mono text-slate-400">({conStock})</span>
+        </label>
+      </div>
+
+      <!-- Facet: Rango de Precio (en Soles) -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 pb-2.5 mb-2.5 border-b border-slate-100">
+          Precio ({simbolo})
+        </h2>
+        <ul class="space-y-1" id="filtros-precio">
+          <li>
+            <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="rango-precio" value="todos" checked class="text-emerald-600 cursor-pointer" />
+              <span class="text-xs text-slate-700">Todos los precios</span>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="rango-precio" value="hasta-10" class="text-emerald-600 cursor-pointer" />
+              <span class="text-xs text-slate-700">Hasta {simbolo} 10</span>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="rango-precio" value="10-30" class="text-emerald-600 cursor-pointer" />
+              <span class="text-xs text-slate-700">{simbolo} 10 a {simbolo} 30</span>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="rango-precio" value="30-60" class="text-emerald-600 cursor-pointer" />
+              <span class="text-xs text-slate-700">{simbolo} 30 a {simbolo} 60</span>
+            </label>
+          </li>
+          <li>
+            <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="rango-precio" value="mas-60" class="text-emerald-600 cursor-pointer" />
+              <span class="text-xs text-slate-700">Más de {simbolo} 60</span>
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Categorías hermanas (otros departamentos) -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 pb-2.5 mb-2.5 border-b border-slate-100">
+          Otros departamentos
+        </h2>
+        <ul class="space-y-1">
+          {taxonomia.filter(c => c.slug !== categoria.slug).slice(0, 10).map(cat => (
+            <li>
+              <a
+                href={`/categoria/${cat.slug}`}
+                class="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 group"
+              >
+                <span class="text-xs text-slate-700 group-hover:text-emerald-700 truncate transition-colors">
+                  {cat.nombreCorto}
+                </span>
+                <span class="text-[11px] font-mono text-slate-400 shrink-0">({cat.total})</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+
+    <!-- GRILLA DE PRODUCTOS + PAGINACIÓN -->
+    <section class="lg:col-span-3" aria-label={`Productos de ${categoria.nombreCorto}`}>
+
+      <!-- Chips de líneas activas (mobile-friendly, estilo Sercoplus subcategorías) -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none" id="chips-lineas">
+        <button
+          type="button"
+          data-chip-linea=""
+          class="chip-linea active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-2xs cursor-pointer whitespace-nowrap"
+        >
+          Todos ({totalProductos})
+        </button>
+        {categoria.subcategorias.map(sub => (
+          <button
+            type="button"
+            data-chip-linea={sub.slug}
+            class="chip-linea px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 cursor-pointer whitespace-nowrap"
+          >
+            {sub.nombre} <span class="text-slate-400 text-[11px]">({sub.total})</span>
+          </button>
+        ))}
+      </div>
+
+      <div
+        id="grilla-categoria"
+        class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4"
+        data-pagina="1"
+        data-por-pagina="12"
+      >
+        {productos.map(prod => (
+          <ProductCard producto={prod} simbolo={simbolo} />
+        ))}
+      </div>
+
+      <!-- Sin resultados -->
+      <div id="categoria-sin-resultados" class="hidden py-14 text-center bg-white rounded-3xl border border-slate-200/80 shadow-2xs">
+        <h3 class="text-sm font-bold text-slate-900">No hay productos con esos filtros</h3>
+        <p class="text-xs text-slate-500 mt-1">Quita algún filtro o prueba con otro departamento.</p>
+        <button
+          type="button"
+          id="btn-limpiar-todo"
+          class="apple-press mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white cursor-pointer shadow-xs"
+        >
+          Ver todos los productos de {categoria.nombreCorto}
+        </button>
+      </div>
+
+      <!-- Paginación estilo Sercoplus -->
+      <nav id="paginacion-categoria" class="mt-6 flex items-center justify-center gap-1.5 flex-wrap" aria-label="Paginación">
+        <!-- Generada por JS -->
+      </nav>
+    </section>
+  </div>
+</Layout>
+
+<script define:vars={{ subcategoriasData: categoria.subcategorias, totalInicial: totalProductos }}>
+  const POR_PAGINA = 12;
+  const grilla = document.getElementById('grilla-categoria');
+  const contador = document.getElementById('contador-categoria');
+  const sinResultados = document.getElementById('categoria-sin-resultados');
+  const paginacionNav = document.getElementById('paginacion-categoria');
+  const checkSoloStock = document.getElementById('filtro-solo-stock');
+  const selectOrden = document.getElementById('orden-categoria');
+  const btnLimpiarLineas = document.getElementById('btn-limpiar-lineas');
+
+  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto'));
+  const checkboxesLinea = Array.from(document.querySelectorAll('.filtro-linea'));
+  const radiosPrecio = Array.from(document.querySelectorAll('input[name="rango-precio"]'));
+  const chipsLinea = Array.from(document.querySelectorAll('.chip-linea'));
+
+  let lineasActivas = new Set(); // slugs de familias
+  let soloStock = false;
+  let rangoPrecio = 'todos';
+  let orden = 'relevancia';
+  let pagina = 1;
+
+  function slugsSeleccionados() {
+    return checkboxesLinea
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+  }
+
+  function generarSlug(texto) {
+    return texto
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function filtrarTarjetas() {
+    const slugs = slugsSeleccionados();
+    const visibles = [];
+
+    tarjetas.forEach(tarjeta => {
+      const familia = tarjeta.getAttribute('data-subcategoria') || '';
+      const familiaSlug = generarSlug(familia);
+      const stock = Number(tarjeta.getAttribute('data-stock') || 0);
+      const precio = Number(tarjeta.getAttribute('data-precio') || 0);
+
+      const coincideLinea = slugs.length === 0 || slugs.includes(familiaSlug);
+      const coincideStock = !soloStock || stock > 0;
+
+      let coincidePrecio = true;
+      if (rangoPrecio === 'hasta-10') coincidePrecio = precio <= 10;
+      else if (rangoPrecio === '10-30') coincidePrecio = precio > 10 && precio <= 30;
+      else if (rangoPrecio === '30-60') coincidePrecio = precio > 30 && precio <= 60;
+      else if (rangoPrecio === 'mas-60') coincidePrecio = precio > 60;
+
+      const visible = coincideLinea && coincideStock && coincidePrecio;
+      tarjeta.dataset.visible = visible ? '1' : '0';
+      tarjeta.style.display = 'none'; // se mostrará por página
+      if (visible) visibles.push(tarjeta);
+    });
+
+    // Ordenamiento
+    if (orden !== 'relevancia' && grilla) {
+      visibles.sort((a, b) => {
+        const pA = Number(a.getAttribute('data-precio') || 0);
+        const pB = Number(b.getAttribute('data-precio') || 0);
+        const nA = a.getAttribute('data-nombre') || '';
+        const nB = b.getAttribute('data-nombre') || '';
+        const sA = Number(a.getAttribute('data-stock') || 0);
+        const sB = Number(b.getAttribute('data-stock') || 0);
+
+        if (orden === 'precio-menor') return pA - pB;
+        if (orden === 'precio-mayor') return pB - pA;
+        if (orden === 'nombre') return nA.localeCompare(nB, 'es');
+        if (orden === 'nombre-desc') return nB.localeCompare(nA, 'es');
+        if (orden === 'stock') return sB - sA;
+        return 0;
+      });
+      visibles.forEach(el => grilla.appendChild(el));
+    }
+
+    // Paginación
+    const totalPaginas = Math.max(1, Math.ceil(visibles.length / POR_PAGINA));
+    if (pagina > totalPaginas) pagina = totalPaginas;
+
+    const inicio = (pagina - 1) * POR_PAGINA;
+    const fin = inicio + POR_PAGINA;
+    visibles.forEach((tarjeta, i) => {
+      tarjeta.style.display = i >= inicio && i < fin ? '' : 'none';
+    });
+
+    // Contador
+    if (contador) {
+      if (visibles.length === 0) {
+        contador.textContent = 'Mostrando 0 productos';
+      } else {
+        contador.textContent = `Mostrando ${inicio + 1}-${Math.min(fin, visibles.length)} de ${visibles.length} producto(s)`;
+      }
+    }
+
+    // Vacío
+    if (sinResultados && grilla) {
+      if (visibles.length === 0) {
+        sinResultados.classList.remove('hidden');
+        grilla.classList.add('hidden');
+        paginacionNav?.classList.add('hidden');
+      } else {
+        sinResultados.classList.add('hidden');
+        grilla.classList.remove('hidden');
+        paginacionNav?.classList.remove('hidden');
+      }
+    }
+
+    renderizarPaginacion(totalPaginas, visibles.length);
+    sincronizarChips();
+  }
+
+  function renderizarPaginacion(totalPaginas, totalVisibles) {
+    if (!paginacionNav) return;
+    paginacionNav.innerHTML = '';
+    if (totalPaginas <= 1 || totalVisibles === 0) return;
+
+    const crearBtn = (texto, targetPage, opciones = {}) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = texto;
+      const base = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ';
+      if (opciones.activo) {
+        btn.className = base + 'bg-slate-900 text-white shadow-xs';
+        btn.setAttribute('aria-current', 'page');
+      } else if (opciones.disabled) {
+        btn.className = base + 'bg-slate-50 text-slate-300 cursor-not-allowed';
+        btn.disabled = true;
+      } else {
+        btn.className = base + 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200';
+        btn.addEventListener('click', () => {
+          pagina = targetPage;
+          filtrarTarjetas();
+          grilla?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          actualizarURL();
+        });
+      }
+      return btn;
+    };
+
+    paginacionNav.appendChild(crearBtn('‹ Anterior', pagina - 1, { disabled: pagina === 1 }));
+
+    // Rango de páginas (estilo Sercoplus: 1 … 3 4 5 … N)
+    const paginas = new Set([1, totalPaginas, pagina, pagina - 1, pagina + 1]);
+    const lista = Array.from(paginas).filter(p => p >= 1 && p <= totalPaginas).sort((a, b) => a - b);
+    let anterior = 0;
+    lista.forEach(p => {
+      if (anterior && p - anterior > 1) {
+        const puntos = document.createElement('span');
+        puntos.textContent = '…';
+        puntos.className = 'px-1 text-slate-400 text-xs';
+        paginacionNav.appendChild(puntos);
+      }
+      paginacionNav.appendChild(crearBtn(String(p), p, { activo: p === pagina }));
+      anterior = p;
+    });
+
+    paginacionNav.appendChild(crearBtn('Siguiente ›', pagina + 1, { disabled: pagina === totalPaginas }));
+  }
+
+  function sincronizarChips() {
+    const slugs = slugsSeleccionados();
+    chipsLinea.forEach(chip => {
+      const slug = chip.getAttribute('data-chip-linea') || '';
+      const activo = slugs.length === 0 ? slug === '' : slugs.includes(slug);
+      chip.classList.toggle('active', activo && (slug === '' ? slugs.length === 0 : true));
+      if (activo && slug !== '') {
+        chip.classList.add('bg-emerald-700', 'text-white', 'font-bold');
+        chip.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200/80');
+      } else if (slug === '' && slugs.length === 0) {
+        chip.classList.add('bg-slate-900', 'text-white', 'font-bold');
+        chip.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200/80');
+      } else {
+        chip.classList.remove('bg-emerald-700', 'text-white', 'font-bold', 'bg-slate-900');
+        chip.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200/80');
+      }
+    });
+    btnLimpiarLineas?.classList.toggle('hidden', slugs.length === 0);
+  }
+
+  function actualizarURL() {
+    const params = new URLSearchParams();
+    const slugs = slugsSeleccionados();
+    if (slugs.length > 0) params.set('linea', slugs.join(','));
+    if (soloStock) params.set('stock', '1');
+    if (rangoPrecio !== 'todos') params.set('precio', rangoPrecio);
+    if (orden !== 'relevancia') params.set('orden', orden);
+    if (pagina > 1) params.set('page', String(pagina));
+    const qs = params.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+  }
+
+  function leerURL() {
+    const params = new URLSearchParams(location.search);
+    const linea = params.get('linea');
+    if (linea) {
+      linea.split(',').forEach(slug => {
+        const cb = checkboxesLinea.find(c => c.value === slug);
+        if (cb) cb.checked = true;
+      });
+    }
+    if (params.get('stock') === '1' && checkSoloStock) checkSoloStock.checked = true;
+    soloStock = checkSoloStock?.checked ?? false;
+    const precio = params.get('precio');
+    if (precio) {
+      const radio = radiosPrecio.find(r => r.value === precio);
+      if (radio) radio.checked = true;
+      rangoPrecio = precio;
+    }
+    const ord = params.get('orden');
+    if (ord && selectOrden) {
+      selectOrden.value = ord;
+      orden = ord;
+    }
+    const page = parseInt(params.get('page') || '1', 10);
+    if (page > 0) pagina = page;
+  }
+
+  // Eventos
+  checkboxesLinea.forEach(cb => cb.addEventListener('change', () => { pagina = 1; filtrarTarjetas(); actualizarURL(); }));
+  checkSoloStock?.addEventListener('change', (e) => { soloStock = e.target.checked; pagina = 1; filtrarTarjetas(); actualizarURL(); });
+  selectOrden?.addEventListener('change', (e) => { orden = e.target.value; pagina = 1; filtrarTarjetas(); actualizarURL(); });
+  radiosPrecio.forEach(r => r.addEventListener('change', () => { rangoPrecio = r.value; pagina = 1; filtrarTarjetas(); actualizarURL(); }));
+
+  chipsLinea.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const slug = chip.getAttribute('data-chip-linea') || '';
+      checkboxesLinea.forEach(cb => { cb.checked = slug !== '' ? cb.value === slug : false; });
+      pagina = 1;
+      filtrarTarjetas();
+      actualizarURL();
+    });
+  });
+
+  btnLimpiarLineas?.addEventListener('click', () => {
+    checkboxesLinea.forEach(cb => { cb.checked = false; });
+    pagina = 1;
+    filtrarTarjetas();
+    actualizarURL();
+  });
+
+  document.getElementById('btn-limpiar-todo')?.addEventListener('click', () => {
+    checkboxesLinea.forEach(cb => { cb.checked = false; });
+    if (checkSoloStock) checkSoloStock.checked = false;
+    const radioTodos = radiosPrecio.find(r => r.value === 'todos');
+    if (radioTodos) radioTodos.checked = true;
+    if (selectOrden) selectOrden.value = 'relevancia';
+    soloStock = false; rangoPrecio = 'todos'; orden = 'relevancia'; pagina = 1;
+    filtrarTarjetas();
+    actualizarURL();
+  });
+
+  // Init
+  leerURL();
+  filtrarTarjetas();
+</script>

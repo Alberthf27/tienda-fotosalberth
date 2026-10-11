@@ -8,500 +8,273 @@ const catalogo = await obtenerCatalogo();
 const { tienda, categorias, productos } = catalogo;
 const taxonomia = construirTaxonomia(productos);
 
-// Búsquedas sugeridas rápidas y elegantes
-const sugerenciasRapidas = [
-  'Cable tipo C',
-  'Audífono Bluetooth',
-  'Memoria USB',
-  'Tinta',
-  'Parlante',
-  'Mouse gamer',
-  'Pilas',
-  'Cargador rápido'
-];
+const destacados = productos.filter(p => p.disponible).slice(0, 12);
 ---
 
 <Layout
-  title="Catálogo Oficial y Tienda"
-  description={`Catálogo digital oficial de tecnología, audio, fotografía e insumos en ${tienda.ciudad}. Precios reales y pedidos directos por WhatsApp.`}
+  title="Inicio"
+  description={`Tienda de tecnología, fotografía e insumos en ${tienda.ciudad}. Precios en soles, stock real y pedidos por WhatsApp.`}
   tienda={tienda}
   taxonomia={taxonomia}
 >
-  <!-- 1. Editorial Hero Showcase (Estilo Apple Retail Minimalista) -->
-  <section class="mb-6" aria-label="Vitrina Principal">
-    <div class="relative bg-slate-900 text-white rounded-3xl p-6 sm:p-8 lg:p-10 overflow-hidden shadow-md">
-      <!-- Fondo sutil con luz ambiental Apple -->
-      <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-600/20 blur-3xl pointer-events-none"></div>
-      <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-600/15 blur-3xl pointer-events-none"></div>
-
-      <div class="relative z-10 max-w-2xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-400 text-xs font-semibold mb-4 border border-white/10">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>Trujillo • 487 productos verificados en tienda</span>
-        </div>
-
-        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-          Tecnología, Fotografía & Conectividad.
-        </h1>
-        <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-          Catálogo con stock real y precios transparentes. Pide directo por WhatsApp con entrega a domicilio o recojo en nuestro taller.
-        </p>
-
-        <!-- Botones de Acción de Vitrina -->
-        <div class="flex flex-wrap items-center gap-3 mt-6">
-          <button
-            type="button"
-            id="hero-btn-explorar"
-            class="apple-press px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm shadow-sm cursor-pointer"
-          >
-            Explorar Categorías
-          </button>
-          <a
-            href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20quisiera%20consultar%20por%20un%20producto`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="apple-press px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm backdrop-blur-sm border border-white/10 transition-colors"
-          >
-            Hablar con Asesor
-          </a>
-        </div>
+  <!-- Banner principal -->
+  <section class="mb-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-8 sm:p-12 text-white relative overflow-hidden" aria-label="Banner principal">
+    <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22><circle cx=%2230%22 cy=%2230%22 r=%221.5%22 fill=%22white%22/></svg>'); background-size: 24px;"></div>
+    <div class="relative z-10 max-w-3xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold mb-4 border border-emerald-500/30">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>{tienda.ciudad} • {productos.length} productos en catálogo</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-4">
+        Tecnología, Audio &<br class="hidden sm:block" /> Fotografía
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base max-w-xl mb-6">
+        Catálogo completo con precios en soles y stock actualizado. Pide directo por WhatsApp con entrega a domicilio o recojo en taller.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a href="#departamentos" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition-colors shadow-lg">
+          Ver Departamentos
+        </a>
+        <a href="#destacados" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl text-sm backdrop-blur-sm border border-white/10 transition-colors">
+          Productos Destacados
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- 2. Garantías de Confianza (Estilo Apple Services) -->
-  <section class="mb-6" aria-label="Garantías y Despacho">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-      
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
-        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="16" height="12" x="1" y="3" rx="2"/>
-            <path d="M5 19v-4M19 19v-4M9 19h6"/>
-            <circle cx="12" cy="9" r="2"/>
+  <!-- Garantías -->
+  <section class="mb-10 grid grid-cols-2 md:grid-cols-4 gap-3" aria-label="Garantías">
+    {[
+      { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', title: 'Garantía en Taller', sub: 'Prueba y compatibilidad' },
+      { icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10', title: 'Recojo en Taller', sub: 'Sin costo de envío' },
+      { icon: 'M1 3h15v13H1z M16 8h4l3 3v5h-7V8z M5.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M18.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z', title: 'Envíos en Trujillo', sub: 'A domicilio o trabajo' },
+      { icon: 'M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4 M4 6v12c0 1.1.9 2 2 2h14v-4 M18 12a2 2 0 0 0 0 4h4v-4h-4z', title: 'Yape, Plin y BCP', sub: 'Pagos directos seguros' }
+    ].map(g => (
+      <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-700">
+            <path d={g.icon}></path>
           </svg>
         </div>
         <div>
-          <div class="font-bold text-slate-900 leading-tight">Envíos en Trujillo</div>
-          <div class="text-[11px] text-slate-400 mt-0.5">A domicilio o trabajo</div>
+          <div class="font-bold text-slate-900 text-sm">{g.title}</div>
+          <div class="text-xs text-slate-500">{g.sub}</div>
         </div>
       </div>
+    ))}
+  </section>
 
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
-        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-        </div>
-        <div>
-          <div class="font-bold text-slate-900 leading-tight">Recojo en Taller</div>
-          <div class="text-[11px] text-slate-400 mt-0.5">Sin costo de envío</div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
-        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="20" height="14" x="2" y="5" rx="2"/>
-            <line x1="2" x2="22" y1="10" y2="10"/>
-          </svg>
-        </div>
-        <div>
-          <div class="font-bold text-slate-900 leading-tight">Yape, Plin y BCP</div>
-          <div class="text-[11px] text-slate-400 mt-0.5">Pagos directos seguros</div>
-        </div>
-      </div>
-
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/70 flex items-center gap-3 shadow-2xs">
-        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </div>
-        <div>
-          <div class="font-bold text-slate-900 leading-tight">Garantía en Taller</div>
-          <div class="text-[11px] text-slate-400 mt-0.5">Prueba y compatibilidad</div>
-        </div>
-      </div>
-
+  <!-- Departamentos / Categorías -->
+  <section id="departamentos" class="mb-12" aria-label="Departamentos">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-xl font-bold text-slate-900">Departamentos</h2>
+      <span class="text-xs text-slate-500">{categorias.length} categorías</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      {taxonomia.map(cat => (
+        <a
+          href={`/categoria/${cat.slug}`}
+          class="group bg-white border border-slate-200 rounded-xl p-4 hover:border-emerald-500 hover:shadow-md transition-all"
+        >
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <div class="font-semibold text-slate-900 text-sm leading-tight mb-1">{cat.nombreCorto}</div>
+          <div class="text-xs text-slate-500">{cat.total} productos</div>
+        </a>
+      ))}
     </div>
   </section>
 
-  <!-- 3. Atajos de Búsqueda Rápida Elegantes -->
-  <section class="mb-5 flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none" aria-label="Búsquedas sugeridas">
-    <span class="font-semibold text-slate-400 uppercase tracking-wider shrink-0 text-[10px]">
-      Sugerencias:
-    </span>
-    {sugerenciasRapidas.map(termino => (
+  <!-- Búsquedas rápidas -->
+  <section class="mb-8 flex flex-wrap items-center gap-2" aria-label="Búsquedas populares">
+    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide mr-1">Populares:</span>
+    {['Audífono', 'Cable', 'Cargador', 'Memoria', 'Mouse', 'Tinta', 'Parlante', 'Pila'].map(t => (
       <button
         type="button"
-        data-quick-search={termino}
-        class="apple-press px-3 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer shadow-2xs"
+        data-busqueda-rapida={t}
+        class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer"
       >
-        {termino}
+        {t}
       </button>
     ))}
   </section>
 
-  <!-- 4. Barra de Filtrado Activo, Breadcrumbs y Subcategorías Desplegadas -->
-  <section class="mb-6 bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs" aria-label="Navegación y Filtros">
-    
-    <!-- Fila 1: Breadcrumb Dinámico y Controles de Orden -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-      
-      <!-- Wayfinding / Breadcrumb Apple-Style -->
-      <div class="flex items-center gap-2 flex-wrap text-xs">
-        <span class="text-slate-400">Ubicación:</span>
-        <button
-          type="button"
-          id="breadcrumb-inicio"
-          class="font-semibold text-slate-900 hover:text-emerald-700 cursor-pointer"
-        >
-          Todos los Departamentos
-        </button>
-        <span id="breadcrumb-sep-1" class="text-slate-300 hidden">›</span>
-        <button
-          type="button"
-          id="breadcrumb-cat"
-          class="font-semibold text-emerald-800 hidden cursor-pointer"
-        >
-        </button>
-        <span id="breadcrumb-sep-2" class="text-slate-300 hidden">›</span>
-        <span id="breadcrumb-sub" class="font-semibold text-slate-600 hidden"></span>
-
-        <!-- Botón Limpiar Filtro si hay alguno activo -->
-        <button
-          type="button"
-          id="btn-limpiar-filtro-activo"
-          class="hidden ml-2 px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-medium cursor-pointer"
-        >
-          ✕ Quitar filtro
-        </button>
-      </div>
-
-      <!-- Controles de Orden, Precio y Stock -->
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- Rango de Precio -->
-        <select
-          id="filtro-rango-precio"
-          class="text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-hidden cursor-pointer"
-        >
-          <option value="todos">Todos los precios</option>
-          <option value="hasta-10">Hasta S/ 10</option>
-          <option value="10-30">S/ 10 a S/ 30</option>
-          <option value="30-60">S/ 30 a S/ 60</option>
-          <option value="mas-60">Más de S/ 60</option>
-        </select>
-
-        <!-- Toggle Solo En Stock -->
-        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 cursor-pointer transition-colors">
-          <input type="checkbox" id="filtro-solo-stock" class="rounded text-emerald-600 cursor-pointer" />
-          <span>Solo en stock</span>
-        </label>
-
-        <!-- Selector de Orden -->
-        <select
-          id="selector-orden"
-          class="text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-hidden cursor-pointer"
-        >
-          <option value="destacados">Destacados</option>
-          <option value="precio-menor">Precio: Menor a Mayor</option>
-          <option value="precio-mayor">Precio: Mayor a Menor</option>
-          <option value="nombre">Nombre: A - Z</option>
-          <option value="stock">Mayor Stock</option>
-        </select>
-      </div>
+  <!-- Productos destacados -->
+  <section id="destacados" class="mb-12" aria-label="Productos destacados">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-xl font-bold text-slate-900">Productos Destacados</h2>
+      <a href="/categoria/audifonos" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">Ver catálogo completo →</a>
     </div>
-
-    <!-- Fila 2: Subcategorías Desplegadas Naturalmente bajo la Categoría Activa -->
-    <div id="contenedor-subcategorias-desplegadas" class="pt-3">
-      <!-- Barra deslizable de subcategorías específicas cuando una categoría está activa -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="lista-subcategorias-chips">
-        <!-- Generado dinámicamente o categorías directas -->
-        <button
-          type="button"
-          data-chip-cat="todas"
-          class="chip-sub-item active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-2xs cursor-pointer whitespace-nowrap"
-        >
-          Todos ({productos.length})
-        </button>
-
-        {taxonomia.slice(0, 8).map(cat => (
-          <button
-            type="button"
-            data-chip-cat={String(cat.id)}
-            class="chip-sub-item px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80 cursor-pointer whitespace-nowrap"
-          >
-            {cat.nombreCorto} <span class="text-slate-400 text-[11px]">({cat.total})</span>
-          </button>
-        ))}
-      </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      {destacados.map(prod => (
+        <ProductCard producto={prod} simbolo={tienda.simbolo} />
+      ))}
     </div>
-
-    <!-- Contador de Resultados Visibles -->
-    <div class="mt-2.5 pt-2 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
-      <span id="contador-productos-visibles">
-        Mostrando {productos.length} productos
-      </span>
-      <span class="text-[11px]">
-        Precios oficiales en Soles (PEN)
-      </span>
-    </div>
-
   </section>
 
-  <!-- 5. Grilla de Productos de la Tienda -->
-  <section aria-label="Listado de productos">
-    <div
-      id="grilla-productos"
-      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5"
-    >
+  <!-- Catálogo completo con filtros -->
+  <section class="mb-12" aria-label="Catálogo completo">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+      <h2 class="text-xl font-bold text-slate-900">Todo el Catálogo</h2>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="filtro-precio" class="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 cursor-pointer">
+          <option value="todos">Todos los precios</option>
+          <option value="hasta-10">Hasta S/ 10</option>
+          <option value="10-30">S/ 10 – S/ 30</option>
+          <option value="30-60">S/ 30 – S/ 60</option>
+          <option value="mas-60">Más de S/ 60</option>
+        </select>
+        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+          <input type="checkbox" id="filtro-stock" class="rounded text-emerald-600" />
+          <span>Solo en stock</span>
+        </label>
+        <select id="filtro-orden" class="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 cursor-pointer">
+          <option value="destacados">Relevancia</option>
+          <option value="precio-menor">Precio: Menor a Mayor</option>
+          <option value="precio-mayor">Precio: Mayor a Menor</option>
+          <option value="nombre">Nombre: A – Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Chips de categorías -->
+    <div class="flex flex-wrap gap-2 mb-5" id="chips-categorias">
+      <button type="button" data-chip="todas" class="chip-activa px-4 py-2 rounded-lg text-sm font-semibold bg-slate-900 text-white">
+        Todos ({productos.length})
+      </button>
+      {taxonomia.map(cat => (
+        <button
+          type="button"
+          data-chip={cat.slug}
+          class="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+        >
+          {cat.nombreCorto} ({cat.total})
+        </button>
+      ))}
+    </div>
+
+    <div id="contador" class="text-sm text-slate-500 mb-4">Mostrando {productos.length} productos</div>
+
+    <div id="grilla" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {productos.map(prod => (
         <ProductCard producto={prod} simbolo={tienda.simbolo} />
       ))}
     </div>
 
-    <!-- Estado Vacío cuando no hay resultados de búsqueda -->
-    <div id="busqueda-sin-resultados" class="hidden py-16 text-center bg-white rounded-3xl border border-slate-200/80 shadow-2xs mt-4">
-      <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-      </div>
-      <h3 class="text-sm font-bold text-slate-900">No encontramos coincidencias</h3>
-      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-        Prueba con otro término de búsqueda o selecciona otra categoría en el menú superior.
-      </p>
-      <button
-        type="button"
-        id="btn-limpiar-filtros-vacio"
-        class="apple-press mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white cursor-pointer shadow-xs"
-      >
-        Ver todos los productos
+    <div id="sin-resultados" class="hidden py-16 text-center bg-white rounded-2xl border border-slate-200">
+      <p class="text-slate-500 mb-4">No se encontraron productos con esos filtros.</p>
+      <button type="button" id="btn-limpiar" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold cursor-pointer">
+        Limpiar filtros
       </button>
     </div>
   </section>
 
-  <!-- 6. Servicios del Taller Presencial (Fotografía, Marcos e Impresión) -->
-  <section class="mt-16 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs" aria-label="Taller y Servicios">
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+  <!-- Servicios del taller -->
+  <section class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8" aria-label="Servicios del taller">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div>
-        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 mb-1.5">
-          Taller Presencial en Trujillo
-        </span>
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-          Fotografía Profesional, Marcos & Impresiones
-        </h2>
-        <p class="text-xs text-slate-500 mt-0.5 max-w-xl">
-          Además de nuestra tienda de tecnología y papelería, en nuestro taller físico realizamos trabajos fotográficos, enmarcados y acabados a medida.
-        </p>
+        <h2 class="text-xl font-bold text-slate-900">Servicios del Taller</h2>
+        <p class="text-sm text-slate-500 mt-1">Fotografía profesional, marcos e impresiones en Trujillo.</p>
       </div>
-
       <a
-        href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20quisiera%20cotizar%20un%20servicio%20de%20fotograf%C3%ADa%20o%20marcos`}
+        href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20quisiera%20cotizar%20un%20servicio`}
         target="_blank"
         rel="noopener noreferrer"
-        class="apple-press shrink-0 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center gap-2"
+        class="shrink-0 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition-colors"
       >
-        <span>Cotizar Servicios en Taller</span>
-        <span>→</span>
+        Cotizar por WhatsApp
       </a>
     </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-6 text-xs">
-      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
-        <div class="font-bold text-slate-900">Fotos Carnet & Pasaporte</div>
-        <p class="text-[11px] text-slate-500 mt-1">Tomas biométricas instantáneas con fondo blanco oficial.</p>
-      </div>
-
-      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
-        <div class="font-bold text-slate-900">Cuadros & Enmarcados</div>
-        <p class="text-[11px] text-slate-500 mt-1">Marcos en madera y vidrio a medida (20x30, retratos y diplomas).</p>
-      </div>
-
-      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
-        <div class="font-bold text-slate-900">Impresión & Copias</div>
-        <p class="text-[11px] text-slate-500 mt-1">Documentos en B/N y color de alta resolución láser.</p>
-      </div>
-
-      <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-100">
-        <div class="font-bold text-slate-900">Anillados & Plastificados</div>
-        <p class="text-[11px] text-slate-500 mt-1">Acabados para manuales, credenciales y documentos.</p>
-      </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[
+        { t: 'Fotos Carnet & Pasaporte', d: 'Tomas biométricas instantáneas con fondo blanco oficial.' },
+        { t: 'Cuadros & Enmarcados', d: 'Marcos en madera y vidrio a medida (20x30, retratos, diplomas).' },
+        { t: 'Impresión & Copias', d: 'Documentos en B/N y color de alta resolución láser.' },
+        { t: 'Anillados & Plastificados', d: 'Acabados para manuales, credenciales y documentos.' }
+      ].map(s => (
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <div class="font-bold text-slate-900 text-sm mb-1">{s.t}</div>
+          <p class="text-xs text-slate-500">{s.d}</p>
+        </div>
+      ))}
     </div>
   </section>
 </Layout>
 
-<script define:vars={{ taxonomiaData: taxonomia }}>
-  // Taxonomía embebida para despliegue natural en cliente
+<script define:vars={{ taxonomiaData: taxonomia, tiendaData: tienda }}>
   const TAXONOMIA = taxonomiaData;
+  const SIMBOLO = tiendaData.simbolo || 'S/';
 
-  // Estado del Catálogo
-  let filtroCategoriaActual = 'todas';
-  let filtroSubcategoriaActual = '';
-  let terminoBusquedaActual = '';
-  let soloStockActual = false;
-  let ordenActual = 'destacados';
-  let rangoPrecioActual = 'todos';
-
-  const grilla = document.getElementById('grilla-productos');
-  const contadorVisibles = document.getElementById('contador-productos-visibles');
-  const sinResultados = document.getElementById('busqueda-sin-resultados');
-  const checkSoloStock = document.getElementById('filtro-solo-stock');
-  const selectOrden = document.getElementById('selector-orden');
-  const selectPrecio = document.getElementById('filtro-rango-precio');
+  const grilla = document.getElementById('grilla');
+  const contador = document.getElementById('contador');
+  const sinResultados = document.getElementById('sin-resultados');
+  const selectPrecio = document.getElementById('filtro-precio');
+  const checkStock = document.getElementById('filtro-stock');
+  const selectOrden = document.getElementById('filtro-orden');
+  const chips = document.querySelectorAll('[data-chip]');
+  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto'));
   const inputBuscador = document.getElementById('buscador-productos');
 
-  // Elementos de Breadcrumbs
-  const bInicio = document.getElementById('breadcrumb-inicio');
-  const bSep1 = document.getElementById('breadcrumb-sep-1');
-  const bCat = document.getElementById('breadcrumb-cat');
-  const bSep2 = document.getElementById('breadcrumb-sep-2');
-  const bSub = document.getElementById('breadcrumb-sub');
-  const btnLimpiarActivo = document.getElementById('btn-limpiar-filtro-activo');
-  const listaSubChips = document.getElementById('lista-subcategorias-chips');
+  let categoriaActual = 'todas';
+  let precioActual = 'todos';
+  let soloStock = false;
+  let ordenActual = 'destacados';
+  let busquedaActual = '';
 
-  const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto'));
-
-  function actualizarBreadcrumbs() {
-    if (filtroCategoriaActual === 'todas' && !filtroSubcategoriaActual) {
-      bSep1?.classList.add('hidden');
-      bCat?.classList.add('hidden');
-      bSep2?.classList.add('hidden');
-      bSub?.classList.add('hidden');
-      btnLimpiarActivo?.classList.add('hidden');
-    } else {
-      btnLimpiarActivo?.classList.remove('hidden');
-
-      // Buscar datos de la categoría actual
-      const catObj = TAXONOMIA.find(c => String(c.id) === filtroCategoriaActual);
-      if (catObj && bCat) {
-        bCat.textContent = catObj.nombreCorto;
-        bCat.classList.remove('hidden');
-        bSep1?.classList.remove('hidden');
-      }
-
-      if (filtroSubcategoriaActual && bSub) {
-        bSub.textContent = filtroSubcategoriaActual;
-        bSub.classList.remove('hidden');
-        bSep2?.classList.remove('hidden');
-      } else {
-        bSub?.classList.add('hidden');
-        bSep2?.classList.add('hidden');
-      }
-    }
-  }
-
-  function actualizarSubcategoriasChips() {
-    if (!listaSubChips) return;
-    listaSubChips.innerHTML = '';
-
-    if (filtroCategoriaActual === 'todas') {
-      // Mostrar botón "Todos" y las categorías principales
-      const btnTodos = document.createElement('button');
-      btnTodos.className = 'chip-sub-item active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-900 text-white shadow-2xs cursor-pointer whitespace-nowrap';
-      btnTodos.textContent = `Todos (${tarjetas.length})`;
-      btnTodos.onclick = () => fijarFiltro('todas', '');
-      listaSubChips.appendChild(btnTodos);
-
-      TAXONOMIA.slice(0, 10).forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = 'chip-sub-item px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80 cursor-pointer whitespace-nowrap';
-        btn.innerHTML = `${cat.nombreCorto} <span class="text-slate-400 text-[11px]">(${cat.total})</span>`;
-        btn.onclick = () => fijarFiltro(String(cat.id), '');
-        listaSubChips.appendChild(btn);
-      });
-    } else {
-      // Mostrar la categoría activa y sus subcategorías desplegadas naturalmente
-      const catObj = TAXONOMIA.find(c => String(c.id) === filtroCategoriaActual);
-      if (!catObj) return;
-
-      // Botón "Ver todo en esta categoría"
-      const btnCatTodo = document.createElement('button');
-      const isCatTodoActive = !filtroSubcategoriaActual;
-      btnCatTodo.className = `chip-sub-item px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${isCatTodoActive ? 'bg-slate-900 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'}`;
-      btnCatTodo.textContent = `Todo ${catObj.nombreCorto} (${catObj.total})`;
-      btnCatTodo.onclick = () => fijarFiltro(String(catObj.id), '');
-      listaSubChips.appendChild(btnCatTodo);
-
-      // Despliegue natural de cada subcategoría
-      catObj.subcategorias.forEach(sub => {
-        const btn = document.createElement('button');
-        const isActive = filtroSubcategoriaActual === sub.nombre;
-        btn.className = `chip-sub-item px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${isActive ? 'bg-emerald-700 text-white font-bold' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'}`;
-        btn.innerHTML = `${sub.nombre} <span class="${isActive ? 'text-emerald-200' : 'text-slate-400'} text-[11px]">(${sub.total})</span>`;
-        btn.onclick = () => fijarFiltro(String(catObj.id), sub.nombre);
-        listaSubChips.appendChild(btn);
-      });
-    }
-  }
-
-  function aplicarFiltrosYOrden() {
+  function aplicarFiltros() {
     let visibles = 0;
-    const query = terminoBusquedaActual.toLowerCase().trim();
+    const query = busquedaActual.toLowerCase().trim();
 
-    tarjetas.forEach(tarjeta => {
-      const catId = tarjeta.getAttribute('data-categoria-id');
-      const subNom = tarjeta.getAttribute('data-subcategoria') || '';
-      const nombre = tarjeta.getAttribute('data-nombre') || '';
-      const sku = tarjeta.getAttribute('data-sku') || '';
-      const stock = Number(tarjeta.getAttribute('data-stock') || 0);
-      const precio = Number(tarjeta.getAttribute('data-precio') || 0);
+    const slugify = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-      // Coincidencia de Categoría
-      const coincideCategoria = filtroCategoriaActual === 'todas' || catId === filtroCategoriaActual;
+    tarjetas.forEach(t => {
+      const catNombre = t.getAttribute('data-categoria-nombre') || '';
+      const cat = slugify(catNombre);
+      const nombre = (t.getAttribute('data-nombre') || '').toLowerCase();
+      const sku = (t.getAttribute('data-sku') || '').toLowerCase();
+      const stock = Number(t.getAttribute('data-stock') || 0);
+      const precio = Number(t.getAttribute('data-precio') || 0);
 
-      // Coincidencia de Subcategoría
-      const coincideSubcategoria = !filtroSubcategoriaActual || subNom === filtroSubcategoriaActual;
+      const okCat = categoriaActual === 'todas' || cat === categoriaActual;
+      const okBusq = !query || nombre.includes(query) || sku.includes(query);
+      const okStock = !soloStock || stock > 0;
+      let okPrecio = true;
+      if (precioActual === 'hasta-10') okPrecio = precio <= 10;
+      else if (precioActual === '10-30') okPrecio = precio > 10 && precio <= 30;
+      else if (precioActual === '30-60') okPrecio = precio > 30 && precio <= 60;
+      else if (precioActual === 'mas-60') okPrecio = precio > 60;
 
-      // Coincidencia de Búsqueda
-      const coincideBusqueda = !query || nombre.includes(query) || sku.includes(query) || subNom.toLowerCase().includes(query);
-
-      // Coincidencia de Stock
-      const coincideStock = !soloStockActual || stock > 0;
-
-      // Coincidencia de Precio
-      let coincidePrecio = true;
-      if (rangoPrecioActual === 'hasta-10') coincidePrecio = precio <= 10;
-      else if (rangoPrecioActual === '10-30') coincidePrecio = precio > 10 && precio <= 30;
-      else if (rangoPrecioActual === '30-60') coincidePrecio = precio > 30 && precio <= 60;
-      else if (rangoPrecioActual === 'mas-60') coincidePrecio = precio > 60;
-
-      if (coincideCategoria && coincideSubcategoria && coincideBusqueda && coincideStock && coincidePrecio) {
-        tarjeta.style.display = '';
+      if (okCat && okBusq && okStock && okPrecio) {
+        t.style.display = '';
         visibles++;
       } else {
-        tarjeta.style.display = 'none';
+        t.style.display = 'none';
       }
     });
 
-    // Ordenamiento
+    // Orden
     if (grilla && ordenActual !== 'destacados') {
-      const tarjetasArray = Array.from(grilla.children);
-      tarjetasArray.sort((a, b) => {
-        const precioA = Number(a.getAttribute('data-precio') || 0);
-        const precioB = Number(b.getAttribute('data-precio') || 0);
-        const nombreA = a.getAttribute('data-nombre') || '';
-        const nombreB = b.getAttribute('data-nombre') || '';
-        const stockA = Number(a.getAttribute('data-stock') || 0);
-        const stockB = Number(b.getAttribute('data-stock') || 0);
-
-        if (ordenActual === 'precio-menor') return precioA - precioB;
-        if (ordenActual === 'precio-mayor') return precioB - precioA;
-        if (ordenActual === 'nombre') return nombreA.localeCompare(nombreB);
-        if (ordenActual === 'stock') return stockB - stockA;
+      const arr = Array.from(grilla.children);
+      arr.sort((a, b) => {
+        const pA = Number(a.getAttribute('data-precio') || 0);
+        const pB = Number(b.getAttribute('data-precio') || 0);
+        const nA = a.getAttribute('data-nombre') || '';
+        const nB = b.getAttribute('data-nombre') || '';
+        if (ordenActual === 'precio-menor') return pA - pB;
+        if (ordenActual === 'precio-mayor') return pB - pA;
+        if (ordenActual === 'nombre') return nA.localeCompare(nB);
         return 0;
       });
-      tarjetasArray.forEach(el => grilla.appendChild(el));
+      arr.forEach(el => grilla.appendChild(el));
     }
 
-    // Actualizar Contador
-    if (contadorVisibles) {
-      contadorVisibles.textContent = `Mostrando ${visibles} producto${visibles === 1 ? '' : 's'}`;
-    }
-
+    if (contador) contador.textContent = `Mostrando ${visibles} producto${visibles === 1 ? '' : 's'}`;
     if (sinResultados && grilla) {
       if (visibles === 0) {
         sinResultados.classList.remove('hidden');
@@ -511,78 +284,58 @@ const sugerenciasRapidas = [
         grilla.classList.remove('hidden');
       }
     }
-
-    actualizarBreadcrumbs();
   }
 
-  function fijarFiltro(categoriaId, subcategoriaNombre = '') {
-    filtroCategoriaActual = categoriaId;
-    filtroSubcategoriaActual = subcategoriaNombre;
-    actualizarSubcategoriasChips();
-    aplicarFiltrosYOrden();
-  }
-
-  // Evento desde Header
-  window.addEventListener('catalogo:categoria', (e) => {
-    const catId = String(e.detail?.categoriaId || 'todas');
-    const subNom = String(e.detail?.subcategoria || '');
-    fijarFiltro(catId, subNom);
-    grilla?.scrollIntoView({ behavior: 'smooth' });
-  });
-
-  window.addEventListener('catalogo:buscar', (e) => {
-    terminoBusquedaActual = e.detail?.query || '';
-    aplicarFiltrosYOrden();
-  });
-
-  // Breadcrumb clicks
-  bInicio?.addEventListener('click', () => fijarFiltro('todas', ''));
-  bCat?.addEventListener('click', () => fijarFiltro(filtroCategoriaActual, ''));
-  btnLimpiarActivo?.addEventListener('click', () => fijarFiltro('todas', ''));
-
-  // Hero trigger
-  document.getElementById('hero-btn-explorar')?.addEventListener('click', () => {
-    document.getElementById('btn-trigger-categorias')?.click();
-  });
-
-  // Sugerencias rápidas
-  document.querySelectorAll('[data-quick-search]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const term = btn.getAttribute('data-quick-search') || '';
-      terminoBusquedaActual = term;
-      if (inputBuscador) inputBuscador.value = term;
-      fijarFiltro('todas', '');
-      grilla?.scrollIntoView({ behavior: 'smooth' });
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      categoriaActual = chip.getAttribute('data-chip') || 'todas';
+      chips.forEach(c => {
+        c.classList.remove('bg-slate-900', 'text-white', 'chip-activa');
+        c.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-700');
+      });
+      chip.classList.add('bg-slate-900', 'text-white', 'chip-activa');
+      chip.classList.remove('bg-white', 'border', 'border-slate-200', 'text-slate-700');
+      aplicarFiltros();
     });
   });
 
-  // Controles
-  selectPrecio?.addEventListener('change', (e) => {
-    rangoPrecioActual = e.target.value;
-    aplicarFiltrosYOrden();
+  selectPrecio?.addEventListener('change', e => { precioActual = e.target.value; aplicarFiltros(); });
+  checkStock?.addEventListener('change', e => { soloStock = e.target.checked; aplicarFiltros(); });
+  selectOrden?.addEventListener('change', e => { ordenActual = e.target.value; aplicarFiltros(); });
+
+  document.querySelectorAll('[data-busqueda-rapida]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      busquedaActual = btn.getAttribute('data-busqueda-rapida') || '';
+      if (inputBuscador) inputBuscador.value = busquedaActual;
+      aplicarFiltros();
+      document.getElementById('destacados')?.scrollIntoView({ behavior: 'smooth' });
+    });
   });
 
-  checkSoloStock?.addEventListener('change', (e) => {
-    soloStockActual = e.target.checked;
-    aplicarFiltrosYOrden();
+  window.addEventListener('catalogo:buscar', e => {
+    busquedaActual = e.detail?.query || '';
+    aplicarFiltros();
   });
 
-  selectOrden?.addEventListener('change', (e) => {
-    ordenActual = e.target.value;
-    aplicarFiltrosYOrden();
-  });
-
-  document.getElementById('btn-limpiar-filtros-vacio')?.addEventListener('click', () => {
-    terminoBusquedaActual = '';
-    soloStockActual = false;
+  document.getElementById('btn-limpiar')?.addEventListener('click', () => {
+    busquedaActual = '';
+    soloStock = false;
     ordenActual = 'destacados';
-    rangoPrecioActual = 'todos';
-
+    precioActual = 'todos';
+    categoriaActual = 'todas';
     if (inputBuscador) inputBuscador.value = '';
-    if (checkSoloStock) checkSoloStock.checked = false;
+    if (checkStock) checkStock.checked = false;
     if (selectOrden) selectOrden.value = 'destacados';
     if (selectPrecio) selectPrecio.value = 'todos';
-
-    fijarFiltro('todas', '');
+    chips.forEach(c => {
+      c.classList.remove('bg-slate-900', 'text-white', 'chip-activa');
+      c.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-700');
+    });
+    const todas = document.querySelector('[data-chip="todas"]');
+    if (todas) {
+      todas.classList.add('bg-slate-900', 'text-white', 'chip-activa');
+      todas.classList.remove('bg-white', 'border', 'border-slate-200', 'text-slate-700');
+    }
+    aplicarFiltros();
   });
 </script>

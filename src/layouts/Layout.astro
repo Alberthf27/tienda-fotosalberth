@@ -10,13 +10,17 @@ interface Props {
   description?: string;
   tienda: InfoTienda;
   taxonomia: CategoriaConSubcategorias[];
+  canonical?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
   title,
   description = 'Catálogo virtual oficial de FOTOSALBERTH - Tecnología, Fotografía y Librería en Trujillo. Pedidos directos con entrega inmediata.',
   tienda,
-  taxonomia = []
+  taxonomia = [],
+  canonical,
+  jsonLd
 } = Astro.props;
 ---
 
@@ -28,10 +32,17 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} | {tienda.nombre}</title>
     <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
     <meta property="og:title" content={`${title} | ${tienda.nombre}`} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:site_name" content={tienda.nombre} />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#0f172a" />
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
   </head>
   <body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-emerald-100 selection:text-emerald-900 pb-16 md:pb-0">
     
