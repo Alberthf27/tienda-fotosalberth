@@ -2,18 +2,19 @@
 
 @layer base {
   :root {
-    --color-fondo: #f8fafc;
-    --color-superficie: #ffffff;
-    --color-borde: rgba(0, 0, 0, 0.08);
-    --color-texto-titulos: #0f172a;
-    --color-texto-cuerpo: #334155;
-    --color-texto-secundario: #64748b;
-    
-    /* Paleta Fotografía y Tecnología Apple-Inspired */
-    --color-acento: #059669; /* Esmeralda sobrio */
-    --color-acento-hover: #047857;
-    --color-acento-light: #ecfdf5;
-    --color-dark: #0f172a;
+    /* Paleta Oficial Retail Sercoplus */
+    --serco-red: #e52e2e;
+    --serco-red-dark: #cc1818;
+    --serco-blue: #0055fe;
+    --serco-navy: #0e3e7a;
+    --serco-yellow: #ffd741;
+    --serco-yellow-dark: #f59e0b;
+    --serco-green: #10b981;
+    --serco-bg: #f5f6f9;
+    --serco-card-bg: #ffffff;
+    --serco-border: #e2e8f0;
+    --serco-text: #1e293b;
+    --serco-text-muted: #64748b;
   }
 
   html {
@@ -21,52 +22,47 @@
   }
 
   body {
-    background-color: var(--color-fondo);
-    color: var(--color-texto-cuerpo);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+    background-color: var(--serco-bg);
+    color: var(--serco-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    letter-spacing: -0.011em;
   }
 }
 
-/* Materiales y Translucidez Estilo Apple */
-.apple-glass {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+/* Clases de Tarjeta y Componentes Sercoplus */
+.serco-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  transition: all 0.25s ease-in-out;
+}
+.serco-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
 }
 
-.apple-glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+/* Flags Sercoplus */
+.serco-flag-sale {
+  background-color: #e52e2e;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
 }
 
-/* Microinteracciones táctiles físicas (Apple spring feedback) */
-.apple-press {
-  transition: transform 120ms cubic-bezier(0.2, 0.8, 0.4, 1), background-color 150ms ease;
-}
-.apple-press:active {
-  transform: scale(0.965);
-}
-
-/* Elevaciones sutiles naturales */
-.apple-shadow-sm {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+.serco-flag-new {
+  background-color: #0055fe;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
 }
 
-.apple-shadow-md {
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.03);
-}
-
-.apple-shadow-lg {
-  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.09), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
-}
-
-/* Scrollbar invisible pero funcional */
+/* Scrollbar invisible */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -75,18 +71,8 @@
   scrollbar-width: none;
 }
 
-/* Transiciones de apertura suaves */
-@keyframes megaMenuFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.99);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-menu-slide {
-  animation: megaMenuFadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Transiciones de Menú Desplegable */
+.serco-dropdown-menu {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e2e8f0;
 }

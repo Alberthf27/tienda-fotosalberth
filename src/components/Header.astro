@@ -10,246 +10,258 @@ interface Props {
 const { tienda, taxonomia = [] } = Astro.props;
 ---
 
-<!-- Barra superior sobria Apple-style (Avisos de despacho y garantía) -->
-<div class="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-4 border-b border-slate-800/80">
-  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-1.5">
-    <div class="flex items-center gap-2">
-      <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-      <span class="font-medium text-slate-200">Tienda Oficial <strong>{tienda.nombre}</strong></span>
-      <span class="text-slate-600 hidden md:inline">•</span>
-      <span class="text-slate-400 hidden md:inline">{tienda.ciudad}, Perú — Entregas a domicilio y recojo en taller</span>
+<!-- Barra Superior Sercoplus (Monedas, Contacto y Garantías) -->
+<div class="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 border-b border-slate-800">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-1 font-bold text-white bg-slate-800 px-2 py-0.5 rounded text-[11px]">
+        <span>PEN S/</span> <span class="text-slate-400">|</span> <span class="text-slate-400">USD $</span>
+      </span>
+      <span class="text-slate-400 hidden md:inline">|</span>
+      <span class="text-slate-300">Oficial <strong>{tienda.nombre}</strong> • {tienda.ciudad}, Perú</span>
+      <span class="text-slate-600 hidden lg:inline">•</span>
+      <span class="text-slate-400 hidden lg:inline">Envíos a domicilio y recojo presencial en taller</span>
     </div>
-    <div class="flex items-center gap-3 text-slate-400 text-[11px]">
-      <span>Pagos: <strong class="text-slate-200">Yape</strong>, <strong class="text-slate-200">Plin</strong>, Transferencias y Efectivo</span>
+    
+    <div class="flex items-center gap-4 text-slate-400 text-[11px]">
+      <span>Pagos: <strong class="text-slate-200">Yape</strong>, <strong class="text-slate-200">Plin</strong>, <strong class="text-slate-200">BCP</strong> y Efectivo</span>
       <span class="text-slate-700 hidden sm:inline">|</span>
       <a
         href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20tengo%20una%20consulta`}
         target="_blank"
         rel="noopener noreferrer"
-        class="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors flex items-center gap-1"
+        class="text-emerald-400 hover:text-emerald-300 font-bold transition-colors flex items-center gap-1"
       >
-        WhatsApp Oficial
+        <span>WhatsApp: 987 654 321</span>
       </a>
     </div>
   </div>
 </div>
 
-<!-- Header Principal con Vidrio Traslúcido Apple (apple-glass) -->
-<header class="apple-glass sticky top-0 z-40 transition-all duration-200">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-18 gap-3 sm:gap-6">
+<!-- Header Principal Sercoplus (Logotipo, Buscador Central con Botón Amarillo y Carrito) -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+    <div class="flex items-center justify-between gap-4 sm:gap-8">
 
-      <!-- Marca / Logotipo Oficial -->
-      <a href="/" class="flex items-center gap-3 shrink-0 group focus:outline-hidden">
-        <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs group-hover:bg-slate-800 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
-            <circle cx="12" cy="13" r="3"/>
-          </svg>
+      <!-- Logotipo Estilo Retail Corporativo -->
+      <a href="/" class="flex items-center gap-2.5 shrink-0 group focus:outline-hidden">
+        <div class="w-10 h-10 rounded-lg bg-[#e52e2e] text-white flex items-center justify-center font-black text-xl shadow-sm">
+          FA
         </div>
         <div>
-          <div class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 leading-tight">
-            FOTOS<span class="text-emerald-700">ALBERTH</span>
+          <div class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 leading-none">
+            FOTOS<span class="text-[#e52e2e]">ALBERTH</span>
           </div>
-          <div class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase">
-            Tienda & Fotografía
+          <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+            Tecnología • Cómputo • Taller
           </div>
         </div>
       </a>
 
-      <!-- Botón Maestro "Categorías" (Despliega la Taxonomía Natural) -->
-      <div class="relative">
-        <button
-          type="button"
-          id="btn-trigger-categorias"
-          class="apple-press flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold shadow-xs cursor-pointer select-none transition-all"
-          aria-expanded="false"
-          aria-haspopup="true"
-          aria-label="Abrir menú de categorías"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-          </svg>
-          <span class="hidden sm:inline">Categorías</span>
-          <svg id="chevron-categorias" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Buscador Elegante Apple Command Palette -->
-      <div class="flex-1 max-w-xl">
-        <div class="relative flex items-center">
+      <!-- Buscador Central Sercoplus (Borde + Botón Amarillo #FFD741 con Lupa) -->
+      <div class="flex-1 max-w-2xl">
+        <form class="relative flex items-center" onsubmit="event.preventDefault();">
           <input
             type="search"
             id="buscador-productos"
-            placeholder="Buscar entre 487 productos (cables, tintas, audífonos, memorias...)"
+            placeholder="Búsqueda en catálogo (cables, memorias, tintas, audífonos, cargadores...)"
             autocomplete="off"
-            class="w-full pl-10 pr-9 py-2 text-xs sm:text-sm bg-slate-100/80 hover:bg-slate-100 focus:bg-white text-slate-900 placeholder-slate-400 rounded-xl border border-transparent focus:border-slate-300 focus:ring-3 focus:ring-slate-900/5 focus:outline-hidden transition-all"
+            class="w-full pl-4 pr-14 py-2.5 text-xs sm:text-sm bg-slate-50 hover:bg-white focus:bg-white text-slate-900 placeholder-slate-400 rounded-lg border-2 border-slate-300 focus:border-[#e52e2e] focus:outline-hidden transition-all"
           />
-          <div class="absolute left-3 text-slate-400 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button
+            type="button"
+            id="btn-lupa-buscar"
+            aria-label="Buscar en catálogo"
+            class="absolute right-1 top-1 bottom-1 px-4 bg-[#ffd741] hover:bg-[#f59e0b] text-slate-950 font-bold rounded flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/>
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-          </div>
-          <button
-            type="button"
-            id="btn-limpiar-busqueda-input"
-            class="hidden absolute right-2.5 text-slate-400 hover:text-slate-600 p-1 rounded-md cursor-pointer"
-            aria-label="Limpiar búsqueda"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
           </button>
-        </div>
+        </form>
       </div>
 
-      <!-- Acciones: Carrito y WhatsApp -->
-      <div class="flex items-center gap-2.5 shrink-0">
+      <!-- Acciones Sercoplus: Asesor WhatsApp y Carrito de Compras -->
+      <div class="flex items-center gap-3 shrink-0">
         
-        <!-- WhatsApp Directo Asesor -->
+        <!-- Botón Asesor WhatsApp -->
         <a
-          href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20quisiera%20asesor%C3%ADa%20sobre%20un%20producto`}
+          href={`https://wa.me/${tienda.telefono_whatsapp}?text=Hola%20FotosAlberth%2C%20quisiera%20asesor%C3%ADa`}
           target="_blank"
           rel="noopener noreferrer"
-          class="hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-colors"
-          title="Atención directa por WhatsApp"
+          class="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
         >
-          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span class="text-xs font-medium">Asesor en línea</span>
+          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-sm font-bold">
+            💬
+          </div>
+          <div class="text-left text-xs leading-tight">
+            <span class="text-slate-400 block text-[10px]">¿Consultas?</span>
+            <span class="font-bold text-slate-800">Atención en vivo</span>
+          </div>
         </a>
 
-        <!-- Botón de Carrito -->
+        <!-- Widget Carrito Sercoplus -->
         <button
           type="button"
           id="btn-abrir-carrito"
-          class="apple-press relative flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-900 font-semibold text-xs sm:text-sm transition-all cursor-pointer focus:outline-hidden"
-          aria-label="Ver carrito de compras"
+          class="flex items-center gap-3 px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200 transition-all cursor-pointer focus:outline-hidden"
+          aria-label="Ver carrito"
         >
           <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-800">
               <circle cx="8" cy="21" r="1"/>
               <circle cx="19" cy="21" r="1"/>
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
             </svg>
             <span
               id="badge-carrito-contador"
-              class="absolute -top-2 -right-2.5 min-w-[18px] h-4.5 px-1 bg-emerald-600 text-white font-bold text-[10px] rounded-full flex items-center justify-center shadow-xs"
+              class="absolute -top-2 -right-2.5 min-w-[18px] h-4.5 px-1 bg-[#e52e2e] text-white font-extrabold text-[10px] rounded-full flex items-center justify-center shadow-xs"
             >
               0
             </span>
           </div>
           <div class="text-left hidden sm:block">
+            <span class="text-[9px] text-slate-400 uppercase font-bold block leading-none">Mi Carrito</span>
             <span id="label-carrito-total-header" class="text-xs font-mono font-bold text-slate-900">S/ 0.00</span>
           </div>
         </button>
+
       </div>
 
     </div>
   </div>
 
-  <!-- MEGA-MENÚ DESPLEGABLE APPLE-STYLE: CATEGORÍAS -> SUBCATEGORÍAS NATURALES -->
-  <div
-    id="mega-menu-categorias"
-    class="hidden absolute top-full left-0 right-0 z-50 bg-white/95 backdrop-blur-2xl border-b border-slate-200/90 shadow-2xl animate-menu-slide"
-  >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+  <!-- Barra de Navegación Oficial Sercoplus (Franja Roja #e52e2e con Botón CATEGORÍAS) -->
+  <nav class="bg-[#e52e2e] text-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-11">
       
-      <div class="flex items-center justify-between pb-3.5 mb-3 border-b border-slate-100 text-xs text-slate-500">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-slate-900 text-sm">Explorador de Departamentos</span>
-          <span class="text-slate-300">|</span>
-          <span>Selecciona una categoría para desplegar sus líneas de productos</span>
-        </div>
+      <!-- Botón Maestro "CATEGORÍAS" Sercoplus -->
+      <div class="relative">
         <button
           type="button"
-          id="btn-cerrar-mega-menu"
-          class="text-slate-400 hover:text-slate-700 p-1 rounded-md text-xs font-medium flex items-center gap-1 cursor-pointer"
+          id="btn-trigger-categorias"
+          class="bg-[#cc1818] hover:bg-[#b01313] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider flex items-center gap-2.5 transition-colors cursor-pointer select-none rounded-t"
+          aria-expanded="false"
+          aria-haspopup="true"
         >
-          <span>Cerrar</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span>CATEGORÍAS</span>
+          <svg id="chevron-categorias" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200">
+            <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
       </div>
 
-      <!-- Disposición a 2 Columnas Naturales: Categorías (Izquierda) -> Subcategorías desplegadas (Derecha) -->
+      <!-- Enlaces de Cabecera Sercoplus -->
+      <div class="hidden md:flex items-center gap-5 text-xs font-bold uppercase tracking-wider">
+        <a href="/" class="hover:text-yellow-200 transition-colors">Inicio</a>
+        <a href="#catalogo" class="hover:text-yellow-200 transition-colors">Catálogo Completo</a>
+        <a href="#destacados" class="hover:text-yellow-200 transition-colors">Ofertas & Destacados</a>
+        <a href="#taller" class="hover:text-yellow-200 transition-colors">Servicios de Taller</a>
+        <a href={`https://wa.me/${tienda.telefono_whatsapp}`} target="_blank" rel="noopener noreferrer" class="hover:text-yellow-200 transition-colors">Ubícanos en Trujillo</a>
+      </div>
+
+      <div class="text-[11px] font-bold text-yellow-300 hidden sm:block">
+        ★ Stock Físico Garantizado
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- Mega-Menú Desplegable Sercoplus (Categorías a la Izquierda -> Subcategorías desplegadas a la Derecha) -->
+  <div
+    id="mega-menu-categorias"
+    class="hidden absolute top-full left-0 right-0 z-50 bg-white border-b-2 border-[#e52e2e] serco-dropdown-menu"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 text-xs text-slate-500">
+        <div class="flex items-center gap-2">
+          <span class="font-black text-slate-900 text-sm uppercase">Departamentos y Especialidades</span>
+          <span class="text-slate-300">|</span>
+          <span>Selecciona un departamento para desplegar sus especialidades</span>
+        </div>
+        <button
+          type="button"
+          id="btn-cerrar-mega-menu"
+          class="text-slate-400 hover:text-red-600 p-1 font-bold text-xs flex items-center gap-1 cursor-pointer"
+        >
+          <span>✕ Cerrar</span>
+        </button>
+      </div>
+
+      <!-- Disposición Sercoplus: 2 Columnas -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6 min-h-[360px]">
         
-        <!-- Columna Izquierda: Lista de Categorías Principales -->
+        <!-- Columna Izquierda: Departamentos -->
         <div class="md:col-span-4 lg:col-span-3 border-r border-slate-100 pr-3 space-y-1 max-h-[460px] overflow-y-auto scrollbar-none">
-          <a
-            href="/"
-            class="item-categoria-menu active w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer bg-slate-900 text-white"
+          <button
+            type="button"
+            data-menu-categoria-id="todas"
+            class="item-categoria-menu active w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left text-xs font-bold transition-all cursor-pointer bg-[#e52e2e] text-white"
           >
-            <div class="flex items-center gap-2.5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="m10 15 5-3-5-3v6Z"></path>
-              </svg>
-              <span>Todos los Productos</span>
-            </div>
-            <span class="text-[11px] opacity-70">487</span>
-          </a>
+            <span>Todos los Departamentos</span>
+            <span class="text-[11px] opacity-80">487</span>
+          </button>
 
           {taxonomia.map(cat => (
-            <a
-              href={`/categoria/${cat.slug}`}
-              class="item-categoria-menu w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
+            <button
+              type="button"
+              data-menu-categoria-id={String(cat.id)}
+              class="item-categoria-menu w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
             >
-              <div class="flex items-center gap-2.5 truncate">
+              <div class="flex items-center gap-2 truncate">
                 <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
                 <span class="truncate">{cat.nombreCorto}</span>
               </div>
-              <span class="text-[11px] text-slate-400 shrink-0 ml-2">({cat.total})</span>
-            </a>
+              <span class="text-[11px] text-slate-400 shrink-0 ml-1">({cat.total})</span>
+            </button>
           ))}
         </div>
 
-        <!-- Columna Derecha: Panel Dinámico de Subcategorías Desplegadas Naturalmente -->
+        <!-- Columna Derecha: Subcategorías desplegadas naturalmente -->
         <div class="md:col-span-8 lg:col-span-9 pl-2 max-h-[460px] overflow-y-auto scrollbar-none">
           
-          <!-- Vista para "Todas las Categorías" -->
+          <!-- Vista para Todos los Departamentos -->
           <div id="panel-subcategorias-todas" class="panel-subcategorias-contenido">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
               <div>
-                <h3 class="text-sm font-bold text-slate-900">Catálogo Completo FOTOSALBERTH</h3>
-                <p class="text-xs text-slate-500">Explora todos los 487 productos o elige una categoría a la izquierda</p>
+                <h3 class="text-sm font-black text-slate-900 uppercase">Catálogo Completo FOTOSALBERTH</h3>
+                <p class="text-xs text-slate-500">487 productos disponibles en tienda</p>
               </div>
-              <a
-                href="/"
-                class="apple-press px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs cursor-pointer"
+              <button
+                type="button"
+                data-accion-ver-todo="todas"
+                class="px-4 py-1.5 rounded bg-[#e52e2e] hover:bg-[#cc1818] text-white font-bold text-xs cursor-pointer shadow-xs"
               >
-                Ver todos los productos (487)
-              </a>
+                Ver todo el catálogo (487)
+              </button>
             </div>
 
-            <!-- Grilla Rápida de Categorías Destacadas -->
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               {taxonomia.slice(0, 12).map(cat => (
-                <a
-                  href={`/categoria/${cat.slug}`}
-                  class="apple-press p-3 rounded-xl border border-slate-200/80 hover:border-slate-400/80 bg-slate-50/50 hover:bg-white text-left transition-all cursor-pointer group block"
+                <button
+                  type="button"
+                  data-accion-filtrar-cat={String(cat.id)}
+                  class="p-3 rounded-lg border border-slate-200 hover:border-[#e52e2e] hover:bg-red-50/20 bg-slate-50/60 text-left transition-all cursor-pointer group"
                 >
-                  <div class="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                  <div class="text-xs font-bold text-slate-900 group-hover:text-[#e52e2e] transition-colors">
                     {cat.nombreCorto}
                   </div>
                   <div class="text-[11px] text-slate-400 mt-0.5">
-                    {cat.subcategorias.length} líneas • {cat.total} productos
+                    {cat.subcategorias.length} especialidades • {cat.total} productos
                   </div>
-                </a>
+                </button>
               ))}
             </div>
           </div>
 
-          <!-- Paneles Específicos por Cada Categoría -->
+          <!-- Paneles Específicos por Departamento -->
           {taxonomia.map(cat => (
             <div
               id={`panel-subcategorias-${cat.id}`}
@@ -257,36 +269,36 @@ const { tienda, taxonomia = [] } = Astro.props;
             >
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
                 <div>
-                  <h3 class="text-sm font-bold text-slate-900">{cat.nombreCorto}</h3>
+                  <h3 class="text-sm font-black text-slate-900 uppercase">{cat.nombreCorto}</h3>
                   <p class="text-xs text-slate-500">
-                    {cat.total} productos disponibles en {cat.subcategorias.length} especialidades
+                    {cat.total} productos en stock divididos en {cat.subcategorias.length} especialidades
                   </p>
                 </div>
-                <a
-                  href={`/categoria/${cat.slug}`}
-                  class="apple-press inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer self-start sm:self-auto"
+                <button
+                  type="button"
+                  data-accion-filtrar-cat={String(cat.id)}
+                  class="px-4 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer"
                 >
-                  <span>Ver todo en {cat.nombreCorto}</span>
-                  <span>→</span>
-                </a>
+                  + Ver todos en {cat.nombreCorto} ({cat.total})
+                </button>
               </div>
 
-              <!-- Grilla de Subcategorías desplegadas de manera natural (sin decir la palabra "familias") -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              <!-- Grilla de especialidades desplegadas de forma natural -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {cat.subcategorias.map(sub => (
-                  <a
-                    href={`/categoria/${cat.slug}?linea=${sub.slug}`}
-                    class="apple-press p-3 rounded-xl border border-slate-200/80 hover:border-emerald-600/70 hover:bg-emerald-50/30 bg-white text-left transition-all cursor-pointer flex items-center justify-between group"
+                  <button
+                    type="button"
+                    data-accion-filtrar-sub={sub.nombre}
+                    data-cat-padre-id={String(cat.id)}
+                    class="p-2.5 rounded-lg border border-slate-200 hover:border-[#e52e2e] hover:bg-red-50/30 bg-white text-left transition-all cursor-pointer flex items-center justify-between group"
                   >
-                    <div class="pr-2">
-                      <span class="text-xs font-semibold text-slate-800 group-hover:text-emerald-800 block line-clamp-1">
-                        {sub.nombre}
-                      </span>
-                    </div>
-                    <span class="text-[11px] font-mono font-medium text-slate-400 group-hover:text-emerald-700 bg-slate-100 group-hover:bg-emerald-100/60 px-2 py-0.5 rounded-md shrink-0">
+                    <span class="text-xs font-semibold text-slate-800 group-hover:text-[#e52e2e] truncate pr-2">
+                      {sub.nombre}
+                    </span>
+                    <span class="text-[11px] font-mono font-bold text-slate-500 group-hover:text-[#e52e2e] bg-slate-100 px-2 py-0.5 rounded shrink-0">
                       {sub.total}
                     </span>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -300,13 +312,12 @@ const { tienda, taxonomia = [] } = Astro.props;
 </header>
 
 <script>
-  // Control del Mega-Menú "Categorías"
   const btnTrigger = document.getElementById('btn-trigger-categorias');
   const megaMenu = document.getElementById('mega-menu-categorias');
   const chevron = document.getElementById('chevron-categorias');
   const btnCerrar = document.getElementById('btn-cerrar-mega-menu');
   const inputBusqueda = document.getElementById('buscador-productos') as HTMLInputElement | null;
-  const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda-input');
+  const btnLupa = document.getElementById('btn-lupa-buscar');
 
   let menuAbierto = false;
 
@@ -332,86 +343,81 @@ const { tienda, taxonomia = [] } = Astro.props;
     toggleMenu(false);
   });
 
-  // Cerrar al hacer clic fuera
   document.addEventListener('click', (e) => {
     if (menuAbierto && !megaMenu?.contains(e.target as Node) && !btnTrigger?.contains(e.target as Node)) {
       toggleMenu(false);
     }
   });
 
-  // Tecla Escape para accesibilidad
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && menuAbierto) {
-      toggleMenu(false);
-    }
-  });
-
-  // Navegación interactiva entre categorías dentro del Mega-Menú
+  // Navegación en el menú
   const itemsCategoriaMenu = document.querySelectorAll('.item-categoria-menu');
   const panelesSubcategorias = document.querySelectorAll('.panel-subcategorias-contenido');
 
   itemsCategoriaMenu.forEach(item => {
-    const activarItem = () => {
+    const activar = () => {
       const catId = item.getAttribute('data-menu-categoria-id') || 'todas';
 
       itemsCategoriaMenu.forEach(i => {
-        i.classList.remove('active', 'bg-slate-900', 'text-white');
+        i.classList.remove('active', 'bg-[#e52e2e]', 'text-white');
         i.classList.add('text-slate-700');
       });
-      item.classList.add('active', 'bg-slate-900', 'text-white');
+      item.classList.add('active', 'bg-[#e52e2e]', 'text-white');
       item.classList.remove('text-slate-700');
 
       panelesSubcategorias.forEach(p => p.classList.add('hidden'));
 
-      const targetPanel = document.getElementById(
+      const target = document.getElementById(
         catId === 'todas' ? 'panel-subcategorias-todas' : `panel-subcategorias-${catId}`
       );
-      targetPanel?.classList.remove('hidden');
+      target?.classList.remove('hidden');
     };
 
-    item.addEventListener('mouseenter', activarItem);
-    item.addEventListener('click', activarItem);
+    item.addEventListener('mouseenter', activar);
+    item.addEventListener('click', activar);
   });
 
-  // Cerrar el mega-menú al navegar desde cualquier enlace interno
-  megaMenu?.querySelectorAll('a[href]').forEach(enlace => {
-    enlace.addEventListener('click', () => toggleMenu(false));
+  // Eventos de filtro desde el Mega-Menú Sercoplus
+  document.querySelector('[data-accion-ver-todo="todas"]')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('catalogo:categoria', { detail: { categoriaId: 'todas', subcategoria: '' } }));
+    toggleMenu(false);
   });
 
-  // Buscador
+  document.querySelectorAll('[data-accion-filtrar-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const catId = btn.getAttribute('data-accion-filtrar-cat') || 'todas';
+      window.dispatchEvent(new CustomEvent('catalogo:categoria', { detail: { categoriaId: catId, subcategoria: '' } }));
+      toggleMenu(false);
+    });
+  });
+
+  document.querySelectorAll('[data-accion-filtrar-sub]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subNom = btn.getAttribute('data-accion-filtrar-sub') || '';
+      const catId = btn.getAttribute('data-cat-padre-id') || 'todas';
+      window.dispatchEvent(new CustomEvent('catalogo:categoria', { detail: { categoriaId: catId, subcategoria: subNom } }));
+      toggleMenu(false);
+    });
+  });
+
+  // Buscador central Sercoplus
   inputBusqueda?.addEventListener('input', (e) => {
-    const valor = (e.target as HTMLInputElement).value;
-    if (valor.length > 0) {
-      btnLimpiarBusqueda?.classList.remove('hidden');
-    } else {
-      btnLimpiarBusqueda?.classList.add('hidden');
-    }
-    window.dispatchEvent(new CustomEvent('catalogo:buscar', { detail: { query: valor } }));
+    const query = (e.target as HTMLInputElement).value;
+    window.dispatchEvent(new CustomEvent('catalogo:buscar', { detail: { query } }));
   });
 
-  btnLimpiarBusqueda?.addEventListener('click', () => {
-    if (inputBusqueda) {
-      inputBusqueda.value = '';
-      btnLimpiarBusqueda.classList.add('hidden');
-      inputBusqueda.focus();
-      window.dispatchEvent(new CustomEvent('catalogo:buscar', { detail: { query: '' } }));
-    }
+  btnLupa?.addEventListener('click', () => {
+    inputBusqueda?.focus();
   });
 
-  // Botón abrir carrito
+  // Carrito
   document.getElementById('btn-abrir-carrito')?.addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('cart:open'));
   });
 
-  // Sincronización del carrito
   window.addEventListener('cart:change', ((e: CustomEvent) => {
-    const contador = document.getElementById('badge-carrito-contador');
-    const totalHeader = document.getElementById('label-carrito-total-header');
-    if (contador) {
-      contador.textContent = String(e.detail?.totalItems || 0);
-    }
-    if (totalHeader) {
-      totalHeader.textContent = `S/ ${(e.detail?.total || 0).toFixed(2)}`;
-    }
+    const badge = document.getElementById('badge-carrito-contador');
+    const labelTotal = document.getElementById('label-carrito-total-header');
+    if (badge) badge.textContent = String(e.detail?.totalItems || 0);
+    if (labelTotal) labelTotal.textContent = `S/ ${(e.detail?.total || 0).toFixed(2)}`;
   }) as EventListener);
 </script>

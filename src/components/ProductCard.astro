@@ -8,35 +8,20 @@ interface Props {
 
 const { producto, simbolo = 'S/' } = Astro.props;
 const tieneStock = producto.stock > 0 && producto.disponible;
-const tieneFotoReal = producto.fotos && producto.fotos.length > 0;
+const tieneFotoReal = Boolean(producto.fotos && producto.fotos.length > 0);
 const fotoReal = tieneFotoReal ? producto.fotos[0] : null;
-const tieneOferta = producto.precio_anterior && producto.precio_anterior > producto.precio;
+const tieneOferta = Boolean(producto.precio_anterior && producto.precio_anterior > producto.precio);
 const porcentajeDescuento = tieneOferta && producto.precio_anterior
   ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
   : 0;
 
-// Icono semántico vectorizado para productos sin fotografía directa
-const catNombre = (producto.categoria || '').toUpperCase();
-let iconoTipo = 'general';
-
-if (catNombre.includes('CABLE') || catNombre.includes('CONECTIVIDAD')) iconoTipo = 'cable';
-else if (catNombre.includes('PARLANTE') || catNombre.includes('RADIO')) iconoTipo = 'parlante';
-else if (catNombre.includes('AUDÍFONO') || catNombre.includes('AUDIFONO')) iconoTipo = 'audifono';
-else if (catNombre.includes('MOUSE') || catNombre.includes('TECLADO') || catNombre.includes('PAD')) iconoTipo = 'computo';
-else if (catNombre.includes('MEMORIA') || catNombre.includes('ALMACENAMIENTO')) iconoTipo = 'memoria';
-else if (catNombre.includes('CARGADOR')) iconoTipo = 'cargador';
-else if (catNombre.includes('ADAPTADOR')) iconoTipo = 'adaptador';
-else if (catNombre.includes('CELULAR')) iconoTipo = 'celular';
-else if (catNombre.includes('TINTA') || catNombre.includes('IMPRESI')) iconoTipo = 'tinta';
-else if (catNombre.includes('LIBRERÍA') || catNombre.includes('ÚTILES') || catNombre.includes('UTILES')) iconoTipo = 'libreria';
-else if (catNombre.includes('LINTERNA') || catNombre.includes('ILUMINACI')) iconoTipo = 'luz';
-else if (catNombre.includes('PILA') || catNombre.includes('BATERIA')) iconoTipo = 'bateria';
-else if (catNombre.includes('CALCULADORA')) iconoTipo = 'calculadora';
-else if (catNombre.includes('CONTROL')) iconoTipo = 'control';
+// Tipo de cambio referencial Sercoplus USD/PEN (3.75)
+const precioDolares = (producto.precio / 3.75).toFixed(2);
+const precioAnteriorDolares = producto.precio_anterior ? (producto.precio_anterior / 3.75).toFixed(2) : null;
 ---
 
 <article
-  class="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden tarjeta-producto"
+  class="serco-card rounded-xl p-3.5 flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-200 tarjeta-producto"
   data-id={producto.id}
   data-categoria-id={producto.categoria_id}
   data-categoria-nombre={producto.categoria}
@@ -46,194 +31,133 @@ else if (catNombre.includes('CONTROL')) iconoTipo = 'control';
   data-precio={producto.precio}
   data-stock={producto.stock}
 >
-  <!-- Cabecera de Tarjeta: Línea y Referencia -->
-  <div class="px-3.5 pt-3 pb-1.5 flex items-center justify-between text-[11px] border-b border-slate-100 bg-slate-50/40">
-    <span class="font-medium text-slate-500 truncate max-w-[150px]" title={producto.categoria}>
-      {producto.categoria}
-    </span>
-    <span class="font-mono text-slate-400 text-[10px] shrink-0" title={`Código: ${producto.sku}`}>
-      {producto.sku || 'REF'}
-    </span>
+  <!-- Flags / Etiquetas Sercoplus -->
+  <div class="absolute top-2.5 right-2.5 z-10 flex flex-col gap-1 items-end">
+    {tieneOferta && tieneStock && (
+      <span class="serco-flag-sale">
+        ¡En oferta!
+      </span>
+    )}
+    {!tieneStock && (
+      <span class="bg-slate-800 text-white font-bold text-[10px] px-2 py-0.5 rounded uppercase">
+        Agotado
+      </span>
+    )}
   </div>
 
-  <!-- Imagen / Preview Visual Cuadrado (1:1) -->
-  <a
-    href={`/producto/${producto.slug}`}
-    class="block relative aspect-square w-full overflow-hidden bg-slate-50/70 p-4 flex items-center justify-center focus:outline-hidden"
-  >
-    {tieneFotoReal ? (
-      <img
-        src={fotoReal}
-        alt={producto.nombre}
-        loading="lazy"
-        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out"
-      />
-    ) : (
-      <!-- Vector curado sobrio cuando no hay foto disponible -->
-      <div class="w-full h-full flex flex-col items-center justify-center p-3 text-center select-none text-slate-400 group-hover:text-slate-600 transition-colors">
-        <div class="w-14 h-14 rounded-2xl bg-white shadow-2xs border border-slate-200/60 flex items-center justify-center">
-          {iconoTipo === 'cable' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M12 2v6m0 8v6M5 8h14M7 8V4m10 4V4"/>
-              <rect x="6" y="8" width="12" height="8" rx="2"/>
-            </svg>
-          )}
-          {iconoTipo === 'parlante' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect width="16" height="20" x="4" y="2" rx="2"/>
-              <circle cx="12" cy="14" r="4"/>
-              <line x1="12" x2="12.01" y1="6" y2="6"/>
-            </svg>
-          )}
-          {iconoTipo === 'audifono' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
-            </svg>
-          )}
-          {iconoTipo === 'computo' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="5" y="2" width="14" height="20" rx="7"/>
-              <line x1="12" y1="6" x2="12" y2="10"/>
-            </svg>
-          )}
-          {iconoTipo === 'memoria' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M4 4h12l4 4v12H4z"/>
-              <path d="M8 4v4h8V4M8 14h8"/>
-            </svg>
-          )}
-          {iconoTipo === 'libreria' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-              <path d="M6 6h10M6 10h10M6 14h6"/>
-            </svg>
-          )}
-          {iconoTipo === 'tinta' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-            </svg>
-          )}
-          {iconoTipo === 'cargador' && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-          )}
-          {['general', 'bateria', 'calculadora', 'control', 'luz', 'adaptador', 'celular'].includes(iconoTipo) && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-              <path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>
-            </svg>
-          )}
+  <div>
+    <!-- Contenedor de Imagen Estilo Sercoplus (Cuadrado 1:1 con Fondo Blanco) -->
+    <a
+      href={`/producto/${producto.slug}`}
+      class="block relative aspect-square w-full overflow-hidden bg-white rounded-lg p-2 flex items-center justify-center focus:outline-hidden mb-3 border border-slate-100"
+    >
+      {tieneFotoReal ? (
+        <img
+          src={fotoReal}
+          alt={producto.nombre}
+          loading="lazy"
+          class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+        />
+      ) : (
+        <div class="w-full h-full flex flex-col items-center justify-center text-slate-300 group-hover:text-slate-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <span class="text-[9px] font-bold text-slate-400 mt-1 uppercase">FOTOSALBERTH</span>
         </div>
-        <span class="text-[10px] font-semibold text-slate-400 mt-2 uppercase tracking-wider">
-          FOTOSALBERTH
-        </span>
-      </div>
-    )}
-
-    <!-- Descuento discreto -->
-    {tieneOferta && tieneStock && (
-      <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-900 text-white shadow-xs">
-        -{porcentajeDescuento}%
-      </span>
-    )}
-
-    <!-- Alerta stock bajo -->
-    {tieneStock && producto.stock <= 3 && (
-      <span class="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-500/90 text-white backdrop-blur-xs">
-        Últimas {producto.stock} unids.
-      </span>
-    )}
-
-    <!-- Agotado -->
-    {!tieneStock && (
-      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-        <span class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-sm">
-          Agotado
-        </span>
-      </div>
-    )}
-  </a>
-
-  <!-- Cuerpo y Detalles -->
-  <div class="flex-1 p-3.5 flex flex-col justify-between gap-3">
-    <div>
-      <!-- Subcategoría natural (sin decir familia) -->
-      {producto.familia && (
-        <span class="text-[11px] font-medium text-slate-400 block truncate mb-1">
-          {producto.familia}
-        </span>
       )}
+    </a>
 
-      <!-- Título de Producto -->
-      <h3 class="font-semibold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
-        <a href={`/producto/${producto.slug}`} class="focus:outline-hidden">
-          {producto.nombre}
-        </a>
-      </h3>
+    <!-- Línea / Especialidad (Desplegada de forma natural) -->
+    <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+      <span class="font-semibold text-blue-600 truncate uppercase tracking-wider text-[10px]" title={producto.categoria}>
+        {producto.familia || producto.categoria}
+      </span>
+      <span class="font-mono text-slate-400 text-[10px]">
+        SKU: {producto.sku || 'REF'}
+      </span>
     </div>
 
-    <!-- Precios y Acción de Compra -->
-    <div class="pt-2 border-t border-slate-100 flex flex-col gap-2">
-      <div class="flex items-baseline justify-between">
-        <div class="flex items-baseline gap-1.5">
-          <span class="text-base sm:text-lg font-bold text-slate-900 font-mono tracking-tight">
-            {simbolo} {producto.precio.toFixed(2)}
-          </span>
-          {tieneOferta && (
-            <span class="text-xs text-slate-400 line-through font-mono">
-              {simbolo} {producto.precio_anterior?.toFixed(2)}
-            </span>
-          )}
-        </div>
+    <!-- Estrellas de Valoración Sercoplus -->
+    <div class="flex items-center gap-1 mb-1.5 text-[#ffd741] text-xs">
+      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+      <span class="text-[10px] text-slate-400 ml-1">(5.0)</span>
+    </div>
 
-        <div>
-          {tieneStock ? (
-            <span class="text-[11px] font-medium text-emerald-700 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              En tienda
-            </span>
-          ) : (
-            <span class="text-[11px] text-slate-400">Sin stock</span>
-          )}
-        </div>
+    <!-- Título Comercial de Producto -->
+    <h3 class="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-red-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
+      <a href={`/producto/${producto.slug}`} class="focus:outline-hidden">
+        {producto.nombre}
+      </a>
+    </h3>
+  </div>
+
+  <!-- Bloque de Precios y Acción de Compra Sercoplus -->
+  <div class="pt-3 border-t border-slate-100 mt-2 flex flex-col gap-2">
+    
+    <!-- Precios Dobles (Soles y Dólares al estilo Sercoplus) -->
+    <div>
+      <div class="flex items-baseline gap-1.5">
+        <span class="text-base sm:text-lg font-black text-slate-900 font-mono">
+          {simbolo} {producto.precio.toFixed(2)}
+        </span>
+        <span class="text-[11px] text-slate-500 font-mono">
+          (${precioDolares})
+        </span>
       </div>
 
-      <!-- Botón Agregar con Apple-press -->
-      <button
-        type="button"
-        disabled={!tieneStock}
-        data-btn-agregar
-        data-producto={JSON.stringify({
-          id: producto.id,
-          sku: producto.sku,
-          nombre: producto.nombre,
-          slug: producto.slug,
-          precio: producto.precio,
-          stock: producto.stock,
-          foto: fotoReal || '',
-          categoria: producto.categoria,
-          disponible: producto.disponible
-        })}
-        class:list={[
-          'apple-press w-full py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all focus:outline-hidden cursor-pointer',
-          tieneStock
-            ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
-            : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-        ]}
-      >
-        {tieneStock ? (
-          <>
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            <span>Agregar</span>
-          </>
-        ) : (
-          <span>No disponible</span>
-        )}
-      </button>
+      {tieneOferta && (
+        <div class="flex items-baseline gap-1.5 text-[11px] text-slate-400 line-through font-mono">
+          <span>{simbolo} {producto.precio_anterior?.toFixed(2)}</span>
+          <span>(${precioAnteriorDolares})</span>
+        </div>
+      )}
     </div>
+
+    <!-- Indicador de Stock Sercoplus -->
+    <div class="flex items-center justify-between text-[11px]">
+      {tieneStock ? (
+        <span class="text-emerald-700 font-semibold flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>En stock ({producto.stock} unids.)</span>
+        </span>
+      ) : (
+        <span class="text-red-600 font-semibold">Sin stock</span>
+      )}
+      <span class="text-[10px] text-slate-400">Garantía taller</span>
+    </div>
+
+    <!-- Botón Añadir al Carrito Estilo Sercoplus -->
+    <button
+      type="button"
+      disabled={!tieneStock}
+      data-btn-agregar
+      data-producto={JSON.stringify({
+        id: producto.id,
+        sku: producto.sku,
+        nombre: producto.nombre,
+        slug: producto.slug,
+        precio: producto.precio,
+        stock: producto.stock,
+        foto: fotoReal || '',
+        categoria: producto.categoria,
+        disponible: producto.disponible
+      })}
+      class:list={[
+        'w-full py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95',
+        tieneStock
+          ? 'bg-[#e52e2e] hover:bg-[#cc1818] text-white'
+          : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+      ]}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="21" r="1"/>
+        <circle cx="19" cy="21" r="1"/>
+        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+      </svg>
+      <span>{tieneStock ? 'Añadir al carrito' : 'No disponible'}</span>
+    </button>
   </div>
 </article>
