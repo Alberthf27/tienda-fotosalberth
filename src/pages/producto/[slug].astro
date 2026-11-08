@@ -321,7 +321,7 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
 </Layout>
 
 <script>
-  const inputCant = document.getElementById('input-detalle-cantidad') as HTMLInputElement | null;
+  const inputCant = document.getElementById('input-detalle-cantidad');
   const btnDec = document.getElementById('btn-detalle-dec');
   const btnInc = document.getElementById('btn-detalle-inc');
   const btnAgregar = document.getElementById('btn-detalle-agregar');
@@ -358,7 +358,7 @@ const enlaceWhatsAppDirecto = generarEnlaceWhatsApp(
   document.querySelectorAll('[data-foto-thumb]').forEach(btn => {
     btn.addEventListener('click', () => {
       const src = btn.getAttribute('data-foto-thumb');
-      const principal = document.getElementById('foto-detalle-principal') as HTMLImageElement | null;
+      const principal = document.getElementById('foto-detalle-principal');
       if (principal && src) {
         principal.src = src;
       }

@@ -316,7 +316,7 @@ const { tienda, taxonomia = [] } = Astro.props;
   const megaMenu = document.getElementById('mega-menu-categorias');
   const chevron = document.getElementById('chevron-categorias');
   const btnCerrar = document.getElementById('btn-cerrar-mega-menu');
-  const inputBusqueda = document.getElementById('buscador-productos') as HTMLInputElement | null;
+  const inputBusqueda = document.getElementById('buscador-productos');
   const btnLupa = document.getElementById('btn-lupa-buscar');
 
   let menuAbierto = false;
@@ -401,7 +401,7 @@ const { tienda, taxonomia = [] } = Astro.props;
 
   // Buscador central Sercoplus
   inputBusqueda?.addEventListener('input', (e) => {
-    const query = (e.target as HTMLInputElement).value;
+    const query = (e.target).value;
     window.dispatchEvent(new CustomEvent('catalogo:buscar', { detail: { query } }));
   });
 
@@ -414,10 +414,10 @@ const { tienda, taxonomia = [] } = Astro.props;
     window.dispatchEvent(new CustomEvent('cart:open'));
   });
 
-  window.addEventListener('cart:change', ((e: CustomEvent) => {
+  window.addEventListener('cart:change', (e) => {
     const badge = document.getElementById('badge-carrito-contador');
     const labelTotal = document.getElementById('label-carrito-total-header');
     if (badge) badge.textContent = String(e.detail?.totalItems || 0);
     if (labelTotal) labelTotal.textContent = `S/ ${(e.detail?.total || 0).toFixed(2)}`;
-  }) as EventListener);
+  });
 </script>

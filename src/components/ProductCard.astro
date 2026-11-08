@@ -20,7 +20,7 @@ const etiqueta = producto.familia || producto.categoria;
 ---
 
 <article
-  class="serco-card rounded-lg p-3 flex flex-col justify-between relative group tarjeta-producto"
+  class="serco-card rounded-lg flex flex-col relative group overflow-hidden tarjeta-producto"
   data-id={producto.id}
   data-categoria-id={producto.categoria_id}
   data-categoria-nombre={producto.categoria}
@@ -30,73 +30,66 @@ const etiqueta = producto.familia || producto.categoria;
   data-precio={producto.precio}
   data-stock={producto.stock}
 >
-  {/* Etiquetas: solo lo que es cierto */}
-  <div class="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
-    {tieneOferta && tieneStock && (
-      <span class="serco-flag-sale">-{porcentajeDescuento}%</span>
-    )}
-    {!tieneStock && (
-      <span class="bg-slate-700 text-white font-semibold text-[11px] px-2 py-1 rounded">Agotado</span>
-    )}
+  <!-- Franja superior: línea / familia (en Sercoplus es el logo de la marca) -->
+  <div class="flex items-center justify-between gap-2 px-3 pt-2.5 pb-1">
+    <span class="text-[10px] font-bold uppercase tracking-wide text-slate-500 truncate" title={etiqueta}>
+      {etiqueta}
+    </span>
+    <span class="flex gap-1 shrink-0">
+      {tieneOferta && tieneStock && <span class="serco-flag-sale">-{porcentajeDescuento}%</span>}
+      {!tieneStock && <span class="bg-slate-700 text-white font-semibold text-[10px] px-1.5 py-0.5 rounded">Agotado</span>}
+    </span>
   </div>
 
-  <a
-    href={`/producto/${producto.slug}`}
-    class="block relative aspect-square w-full overflow-hidden bg-white rounded-md flex items-center justify-center mb-2.5 border border-slate-100"
-  >
+  <a href={`/producto/${producto.slug}`} class="block aspect-square w-full bg-white px-3 flex items-center justify-center">
     {tieneFotoReal ? (
       <img
         src={fotoReal}
         srcset={fotoMini ? `${fotoMini} 268w, ${fotoReal} 400w` : undefined}
-        sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+        sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 215px"
         alt={producto.nombre}
         loading="lazy"
         decoding="async"
         width="400"
         height="400"
-        class="w-full h-full object-contain p-1.5 group-hover:scale-[1.03] transition-transform duration-200"
+        class="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-200"
       />
     ) : (
       <div class="w-full h-full flex flex-col items-center justify-center gap-1.5 text-slate-300">
-        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
           <rect x="3" y="3" width="18" height="18" rx="2"></rect>
           <circle cx="8.5" cy="8.5" r="1.5"></circle>
           <path d="m21 15-5-5L5 21"></path>
         </svg>
-        <span class="text-[11px] font-medium text-slate-400">Foto próximamente</span>
+        <span class="text-[10px] font-medium text-slate-400">Foto próximamente</span>
       </div>
     )}
   </a>
 
-  <div class="flex-1 flex flex-col">
-    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide truncate mb-1" title={etiqueta}>
-      {etiqueta}
-    </span>
-
-    <h3 class="font-semibold text-[14px] leading-snug text-slate-800 group-hover:text-[#e52e2e] transition-colors line-clamp-2 min-h-[2.6rem] mb-2">
+  <div class="px-3 pb-3 flex-1 flex flex-col">
+    <h3 class="font-semibold text-[13px] leading-snug text-slate-800 group-hover:text-[#e52e2e] transition-colors line-clamp-2 min-h-[2.4rem]">
       <a href={`/producto/${producto.slug}`}>{producto.nombre}</a>
     </h3>
 
-    <div class="mt-auto">
-      <div class="flex items-baseline gap-2 flex-wrap">
-        <span class="text-[20px] font-extrabold text-slate-900 leading-none">
+    <!-- Datos, como en la tarjeta de Sercoplus: Stock y Referencia -->
+    <dl class="mt-1.5 text-[11.5px] leading-tight text-slate-500 space-y-0.5">
+      <div class="flex gap-1">
+        <dt>Stock:</dt>
+        <dd class:list={['font-semibold', tieneStock ? 'text-slate-700' : 'text-red-600']}>{producto.stock}</dd>
+      </div>
+      <div class="flex gap-1 min-w-0">
+        <dt class="shrink-0">Ref:</dt>
+        <dd class="font-mono text-[10.5px] text-slate-500 truncate">{producto.sku}</dd>
+      </div>
+    </dl>
+
+    <div class="mt-auto pt-2.5">
+      <div class="flex items-baseline gap-1.5 flex-wrap mb-2">
+        <span class="text-[19px] font-extrabold text-[#e52e2e] leading-none">
           {simbolo} {producto.precio.toFixed(2)}
         </span>
         {tieneOferta && (
-          <span class="text-[13px] text-slate-400 line-through">
-            {simbolo} {producto.precio_anterior?.toFixed(2)}
-          </span>
-        )}
-      </div>
-
-      <div class="mt-1.5 mb-2.5 text-[12px]">
-        {tieneStock ? (
-          <span class="text-emerald-700 font-medium flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            Stock: {producto.stock}
-          </span>
-        ) : (
-          <span class="text-slate-500 font-medium">Sin stock</span>
+          <span class="text-[12px] text-slate-400 line-through">{simbolo} {producto.precio_anterior?.toFixed(2)}</span>
         )}
       </div>
 
@@ -116,13 +109,13 @@ const etiqueta = producto.familia || producto.categoria;
           disponible: producto.disponible
         })}
         class:list={[
-          'w-full py-2 px-3 rounded-md font-semibold text-[13px] flex items-center justify-center gap-1.5 transition-colors',
+          'w-full py-1.5 px-2 rounded font-semibold text-[12px] flex items-center justify-center gap-1.5 transition-colors',
           tieneStock
-            ? 'bg-[#e52e2e] hover:bg-[#cc1818] text-white cursor-pointer'
+            ? 'bg-slate-900 hover:bg-[#e52e2e] text-white cursor-pointer'
             : 'bg-slate-100 text-slate-400 cursor-not-allowed'
         ]}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="8" cy="21" r="1"></circle>
           <circle cx="19" cy="21" r="1"></circle>
           <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>

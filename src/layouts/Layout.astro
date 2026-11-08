@@ -200,7 +200,10 @@ const {
         window.dispatchEvent(new CustomEvent('cart:open'));
       });
 
-      window.addEventListener('cart:change', ((e: CustomEvent) => {
+      // Ojo: este script es JS plano (no TS). Un `as EventListener` aquí rompía
+      // todo el bloque con "Unexpected identifier 'as'" y dejaba muertos los
+      // botones del dock móvil.
+      window.addEventListener('cart:change', (e) => {
         const badge = document.getElementById('dock-badge-carrito');
         const count = e.detail?.totalItems || 0;
         if (badge) {
@@ -213,7 +216,7 @@ const {
             badge.classList.remove('flex');
           }
         }
-      }) as EventListener);
+      });
     </script>
   </body>
 </html>

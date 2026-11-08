@@ -367,7 +367,7 @@ const { tienda } = Astro.props;
       radio.addEventListener('change', (e) => {
         const container = document.getElementById('campo-direccion-container');
         if (container) {
-          if ((e.target as HTMLInputElement).value === 'delivery') {
+          if ((e.target).value === 'delivery') {
             container.classList.remove('hidden');
           } else {
             container.classList.add('hidden');
@@ -386,7 +386,7 @@ const { tienda } = Astro.props;
     });
 
     // Evento para agregar producto
-    window.addEventListener('cart:add', ((e: CustomEvent) => {
+    window.addEventListener('cart:add', (e) => {
       const prod = e.detail?.producto;
       const cant = e.detail?.cantidad || 1;
       if (!prod) return;
@@ -409,16 +409,16 @@ const { tienda } = Astro.props;
 
       guardarCarrito();
       abrirDrawer();
-    }) as EventListener);
+    });
 
     // Botón Finalizar por WhatsApp
     document.getElementById('btn-finalizar-whatsapp')?.addEventListener('click', () => {
       if (carritoItems.length === 0) return;
 
-      const nombreInput = document.getElementById('cliente-nombre-input') as HTMLInputElement | null;
-      const direccionInput = document.getElementById('cliente-direccion-input') as HTMLInputElement | null;
-      const entregaRadio = document.querySelector('input[name="tipo-entrega"]:checked') as HTMLInputElement | null;
-      const pagoRadio = document.querySelector('input[name="metodo-pago"]:checked') as HTMLInputElement | null;
+      const nombreInput = document.getElementById('cliente-nombre-input');
+      const direccionInput = document.getElementById('cliente-direccion-input');
+      const entregaRadio = document.querySelector('input[name="tipo-entrega"]:checked');
+      const pagoRadio = document.querySelector('input[name="metodo-pago"]:checked');
 
       const nombreCliente = nombreInput?.value?.trim() || '';
       const tipoEntrega = entregaRadio?.value || 'tienda';

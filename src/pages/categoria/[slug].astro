@@ -84,12 +84,20 @@ const jsonLd = {
 >
   <!-- Breadcrumb dentro del banner de categoría (ver columna de contenido) -->
 
-  <!-- El título y el orden viven dentro de la columna de contenido,
-       como en Sercoplus: breadcrumb arriba, banner de categoría y toolbar. -->
+  <!-- Breadcrumb (Sercoplus lo pone centrado, encima del contenido) -->
+  <nav aria-label="Miga de pan" class="mb-3 text-[12px] text-slate-500 flex items-center justify-center gap-1.5 flex-wrap">
+    <a href="/" class="font-semibold text-slate-600 hover:text-[#e52e2e] transition-colors">Inicio</a>
+    <span class="text-slate-300">/</span>
+    <a href="/catalogo" class="font-semibold text-slate-600 hover:text-[#e52e2e] transition-colors">Catálogo</a>
+    <span class="text-slate-300">/</span>
+    <span class="font-semibold text-slate-900">{categoria.nombreCorto}</span>
+  </nav>
+
+  <!-- Cuerpo: Sidebar + Contenido (analogía directa con Sercoplus) -->
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
 
     <!-- SIDEBAR DE FILTROS (facets) -->
-    <aside class="lg:col-span-1 space-y-3.5" aria-label="Filtros de productos">
+    <aside id="sidebar-filtros" class="hidden lg:block lg:col-span-1 space-y-3.5" aria-label="Filtros de productos">
 
       <!-- Facet: Líneas (familias) -->
       <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
@@ -204,29 +212,24 @@ const jsonLd = {
     <!-- GRILLA DE PRODUCTOS + PAGINACIÓN -->
     <section class="lg:col-span-3" aria-label={`Productos de ${categoria.nombreCorto}`}>
 
-      <!-- 1. Banner de categoría (Sercoplus: nombre + conteo + imágenes) -->
-      <div class="mb-4 bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <div class="relative flex items-center justify-between gap-4 px-5 sm:px-7 py-6 min-h-[150px]">
+      <!-- 1. Banner de categoría: bloque visual, sin texto encima (Sercoplus) -->
+      <div class="bg-white rounded-t-2xl border border-b-0 border-slate-200 overflow-hidden">
+        <div class="relative h-[150px] sm:h-[200px] bg-gradient-to-r from-[#0e3e7a] via-[#123a63] to-[#0a1f38] flex items-center justify-between px-6 sm:px-10 overflow-hidden">
+          <div
+            class="absolute inset-0 opacity-[0.13]"
+            style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 18px 18px;"
+            aria-hidden="true"
+          ></div>
           <div class="relative z-10">
-            <nav aria-label="Miga de pan" class="mb-2 text-[12px] text-slate-500 flex items-center gap-1.5 flex-wrap">
-              <a href="/" class="font-semibold text-slate-600 hover:text-[#e52e2e] transition-colors">Inicio</a>
-              <span class="text-slate-300">›</span>
-              <span class="font-semibold text-slate-900">{categoria.nombreCorto}</span>
-            </nav>
-            <h1 class="text-[26px] sm:text-[32px] font-black tracking-tight text-slate-900 leading-none uppercase">
-              {categoria.nombreCorto}
-            </h1>
-            <p class="mt-2 text-[13px] text-slate-500">
-              <strong class="text-slate-700">{totalProductos}</strong> productos
-              <span class="text-slate-300 mx-1">·</span>
-              <strong class="text-emerald-700">{conStock}</strong> con stock
-              <span class="text-slate-300 mx-1">·</span>
-              {modoSubcategorias ? `${categoria.subcategorias.length} líneas` : 'catálogo completo'}
-            </p>
+            <span class="inline-block px-2.5 py-1 rounded bg-[#e52e2e] text-white text-[10px] font-black uppercase tracking-wider mb-2">
+              Departamento
+            </span>
+            <span class="block text-white/90 text-[13px] font-semibold">
+              {totalProductos} productos · {conStock} con stock
+            </span>
           </div>
-
           {imagenesBanner.length > 0 && (
-            <div class="relative z-10 hidden sm:flex items-center gap-2 shrink-0">
+            <div class="relative z-10 hidden sm:flex items-end gap-2 sm:gap-3">
               {imagenesBanner.map(foto => (
                 <img
                   src={foto}
@@ -234,9 +237,9 @@ const jsonLd = {
                   aria-hidden="true"
                   loading="lazy"
                   decoding="async"
-                  width="120"
-                  height="120"
-                  class="w-[86px] h-[86px] lg:w-[104px] lg:h-[104px] object-contain bg-white rounded-lg border border-slate-100 p-1"
+                  width="130"
+                  height="130"
+                  class="w-[74px] h-[74px] lg:w-[96px] lg:h-[96px] object-contain bg-white/95 rounded-lg p-1 shadow-sm"
                 />
               ))}
             </div>
@@ -244,7 +247,59 @@ const jsonLd = {
         </div>
       </div>
 
-      <!-- 2. Subcategorías como tiles (sólo cuando la estructura lo permite) -->
+      <!-- 2. Título de la categoría, debajo del banner -->
+      <div class="bg-white border-x border-slate-200 px-5 py-3.5">
+        <h1 class="text-[19px] sm:text-[23px] font-black tracking-tight text-slate-900 uppercase leading-none">
+          {categoria.nombreCorto}
+        </h1>
+      </div>
+
+      <!-- 3. Toolbar: Filtrar · N productos · vistas · Ordenar por -->
+      <div class="mb-3 bg-white rounded-b-2xl border border-t border-slate-200 px-3 sm:px-4 py-2 flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            id="btn-filtrar-movil"
+            class="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-slate-200 text-[12px] font-semibold text-slate-700 cursor-pointer hover:bg-slate-50"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+            Filtrar
+          </button>
+          <span id="contador-categoria" class="text-[12px] font-semibold text-slate-600 whitespace-nowrap">
+            {totalProductos} productos
+          </span>
+        </div>
+
+        <!-- Selector de vista (Sercoplus tiene varios iconos) -->
+        <div class="hidden sm:flex items-center gap-0.5" role="group" aria-label="Vista de productos">
+          <button type="button" data-vista="grid" class="btn-vista p-1.5 rounded text-slate-500 hover:bg-slate-100 cursor-pointer" aria-label="Cuadrícula">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button type="button" data-vista="compacta" class="btn-vista p-1.5 rounded text-slate-500 hover:bg-slate-100 cursor-pointer" aria-label="Cuadrícula compacta">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="3" width="4" height="7"/><rect x="8" y="3" width="4" height="7"/><rect x="14" y="3" width="4" height="7"/><rect x="20" y="3" width="2" height="7"/><rect x="2" y="14" width="4" height="7"/><rect x="8" y="14" width="4" height="7"/><rect x="14" y="14" width="4" height="7"/><rect x="20" y="14" width="2" height="7"/></svg>
+          </button>
+          <button type="button" data-vista="lista" class="btn-vista p-1.5 rounded text-slate-500 hover:bg-slate-100 cursor-pointer" aria-label="Lista">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="3"/><rect x="3" y="10" width="18" height="3"/><rect x="3" y="16" width="18" height="3"/></svg>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 text-[12px]">
+          <label for="orden-categoria" class="font-semibold text-slate-500 shrink-0">Ordenar por:</label>
+          <select
+            id="orden-categoria"
+            class="font-semibold text-slate-700 bg-white hover:bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 focus:outline-hidden cursor-pointer text-[12px]"
+          >
+            <option value="relevancia">Relevancia</option>
+            <option value="precio-menor">Precio: de más bajo a más alto</option>
+            <option value="precio-mayor">Precio: de más alto a más bajo</option>
+            <option value="nombre">Nombre, A a Z</option>
+            <option value="nombre-desc">Nombre, Z a A</option>
+            <option value="stock">Mayor stock</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 4. Subcategorías como tiles (sólo cuando la estructura lo permite) -->
       {modoSubcategorias && tilesSubcategoria.length > 0 && (
         <div class="mb-4 bg-white rounded-2xl border border-slate-200 p-4">
           <h2 class="text-[12px] font-black uppercase tracking-wider text-slate-900 mb-3">Subcategorías</h2>
@@ -601,8 +656,7 @@ const jsonLd = {
     actualizarURL();
   });
 
-  document.getElementById('btn-limpiar-todo')?.addEventListener('click', () => {
-    checkboxesLinea.forEach(cb => { cb.checked = false; });
+  document.getElementById('btn-limpiar-todo')?.addEventListener('click', () => {    checkboxesLinea.forEach(cb => { cb.checked = false; });
     if (checkSoloStock) checkSoloStock.checked = false;
     const radioTodos = radiosPrecio.find(r => r.value === 'todos');
     if (radioTodos) radioTodos.checked = true;
@@ -610,6 +664,34 @@ const jsonLd = {
     soloStock = false; rangoPrecio = 'todos'; orden = 'relevancia'; pagina = 1;
     filtrarTarjetas();
     actualizarURL();
+  });
+
+  // Selector de vista (cuadrícula / compacta / lista), como en Sercoplus
+  document.querySelectorAll('.btn-vista').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const vista = btn.getAttribute('data-vista');
+      document.querySelectorAll('.btn-vista').forEach(b => {
+        b.classList.remove('text-slate-900', 'bg-slate-100');
+        b.classList.add('text-slate-500');
+      });
+      btn.classList.add('text-slate-900', 'bg-slate-100');
+      btn.classList.remove('text-slate-500');
+
+      if (grilla) {
+        grilla.classList.toggle('xl:grid-cols-4', vista !== 'compacta' && vista !== 'lista');
+        grilla.classList.toggle('xl:grid-cols-5', vista === 'compacta');
+        grilla.classList.toggle('sm:grid-cols-3', vista !== 'lista');
+        grilla.classList.toggle('sm:grid-cols-1', vista === 'lista');
+      }
+    });
+  });
+
+  // Filtros en móvil: el sidebar arranca oculto y se abre con el botón
+  document.getElementById('btn-filtrar-movil')?.addEventListener('click', () => {
+    const aside = document.getElementById('sidebar-filtros');
+    if (!aside) return;
+    aside.classList.toggle('hidden');
+    aside.classList.toggle('block');
   });
 
   // Init
