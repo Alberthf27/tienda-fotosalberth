@@ -12,17 +12,15 @@ const tieneFotoReal = Boolean(producto.fotos && producto.fotos.length > 0);
 const fotoReal = tieneFotoReal ? producto.fotos[0] : null;
 const fotoMini = producto.fotos_mini?.[0] ?? null;
 const tieneOferta = Boolean(producto.precio_anterior && producto.precio_anterior > producto.precio);
-const porcentajeDescuento = tieneOferta && producto.precio_anterior
-  ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
-  : 0;
-
-// Tipo de cambio referencial Sercoplus USD/PEN (3.75)
-const precioDolares = (producto.precio / 3.75).toFixed(2);
-const precioAnteriorDolares = producto.precio_anterior ? (producto.precio_anterior / 3.75).toFixed(2) : null;
+const porcentajeDescuento =
+  tieneOferta && producto.precio_anterior
+    ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
+    : 0;
+const etiqueta = producto.familia || producto.categoria;
 ---
 
 <article
-  class="serco-card rounded-xl p-3.5 flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-200 tarjeta-producto"
+  class="serco-card rounded-lg p-3 flex flex-col justify-between relative group tarjeta-producto"
   data-id={producto.id}
   data-categoria-id={producto.categoria_id}
   data-categoria-nombre={producto.categoria}
@@ -32,138 +30,105 @@ const precioAnteriorDolares = producto.precio_anterior ? (producto.precio_anteri
   data-precio={producto.precio}
   data-stock={producto.stock}
 >
-  <!-- Flags / Etiquetas Sercoplus -->
-  <div class="absolute top-2.5 right-2.5 z-10 flex flex-col gap-1 items-end">
+  {/* Etiquetas: solo lo que es cierto */}
+  <div class="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
     {tieneOferta && tieneStock && (
-      <span class="serco-flag-sale">
-        ¡En oferta!
-      </span>
+      <span class="serco-flag-sale">-{porcentajeDescuento}%</span>
     )}
     {!tieneStock && (
-      <span class="bg-slate-800 text-white font-bold text-[10px] px-2 py-0.5 rounded uppercase">
-        Agotado
-      </span>
+      <span class="bg-slate-700 text-white font-semibold text-[11px] px-2 py-1 rounded">Agotado</span>
     )}
   </div>
 
-  <div>
-    <!-- Contenedor de Imagen Estilo Sercoplus (Cuadrado 1:1 con Fondo Blanco) -->
-    <a
-      href={`/producto/${producto.slug}`}
-      class="block relative aspect-square w-full overflow-hidden bg-white rounded-lg p-2 flex items-center justify-center focus:outline-hidden mb-3 border border-slate-100"
-    >
-      {tieneFotoReal ? (
-        <img
-          src={fotoReal}
-          srcset={fotoMini ? `${fotoMini} 268w, ${fotoReal} 400w` : undefined}
-          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
-          alt={producto.nombre}
-          loading="lazy"
-          decoding="async"
-          width="400"
-          height="400"
-          class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-        />
-      ) : (
-        <div class="w-full h-full flex flex-col items-center justify-center text-slate-300 group-hover:text-slate-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="2" y="3" width="20" height="14" rx="2"></rect>
-            <line x1="8" y1="21" x2="16" y2="21"></line>
-            <line x1="12" y1="17" x2="12" y2="21"></line>
-          </svg>
-          <span class="text-[9px] font-bold text-slate-400 mt-1 uppercase">FOTOSALBERTH</span>
-        </div>
-      )}
-    </a>
+  <a
+    href={`/producto/${producto.slug}`}
+    class="block relative aspect-square w-full overflow-hidden bg-white rounded-md flex items-center justify-center mb-2.5 border border-slate-100"
+  >
+    {tieneFotoReal ? (
+      <img
+        src={fotoReal}
+        srcset={fotoMini ? `${fotoMini} 268w, ${fotoReal} 400w` : undefined}
+        sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+        alt={producto.nombre}
+        loading="lazy"
+        decoding="async"
+        width="400"
+        height="400"
+        class="w-full h-full object-contain p-1.5 group-hover:scale-[1.03] transition-transform duration-200"
+      />
+    ) : (
+      <div class="w-full h-full flex flex-col items-center justify-center gap-1.5 text-slate-300">
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <path d="m21 15-5-5L5 21"></path>
+        </svg>
+        <span class="text-[11px] font-medium text-slate-400">Foto próximamente</span>
+      </div>
+    )}
+  </a>
 
-    <!-- Línea / Especialidad (Desplegada de forma natural) -->
-    <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-      <span class="font-semibold text-blue-600 truncate uppercase tracking-wider text-[10px]" title={producto.categoria}>
-        {producto.familia || producto.categoria}
-      </span>
-      <span class="font-mono text-slate-400 text-[10px]">
-        SKU: {producto.sku || 'REF'}
-      </span>
-    </div>
+  <div class="flex-1 flex flex-col">
+    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide truncate mb-1" title={etiqueta}>
+      {etiqueta}
+    </span>
 
-    <!-- Estrellas de Valoración Sercoplus -->
-    <div class="flex items-center gap-1 mb-1.5 text-[#ffd741] text-xs">
-      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-      <span class="text-[10px] text-slate-400 ml-1">(5.0)</span>
-    </div>
-
-    <!-- Título Comercial de Producto -->
-    <h3 class="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-red-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
-      <a href={`/producto/${producto.slug}`} class="focus:outline-hidden">
-        {producto.nombre}
-      </a>
+    <h3 class="font-semibold text-[14px] leading-snug text-slate-800 group-hover:text-[#e52e2e] transition-colors line-clamp-2 min-h-[2.6rem] mb-2">
+      <a href={`/producto/${producto.slug}`}>{producto.nombre}</a>
     </h3>
-  </div>
 
-  <!-- Bloque de Precios y Acción de Compra Sercoplus -->
-  <div class="pt-3 border-t border-slate-100 mt-2 flex flex-col gap-2">
-    
-    <!-- Precios Dobles (Soles y Dólares al estilo Sercoplus) -->
-    <div>
-      <div class="flex items-baseline gap-1.5">
-        <span class="text-base sm:text-lg font-black text-slate-900 font-mono">
+    <div class="mt-auto">
+      <div class="flex items-baseline gap-2 flex-wrap">
+        <span class="text-[20px] font-extrabold text-slate-900 leading-none">
           {simbolo} {producto.precio.toFixed(2)}
         </span>
-        <span class="text-[11px] text-slate-500 font-mono">
-          (${precioDolares})
-        </span>
+        {tieneOferta && (
+          <span class="text-[13px] text-slate-400 line-through">
+            {simbolo} {producto.precio_anterior?.toFixed(2)}
+          </span>
+        )}
       </div>
 
-      {tieneOferta && (
-        <div class="flex items-baseline gap-1.5 text-[11px] text-slate-400 line-through font-mono">
-          <span>{simbolo} {producto.precio_anterior?.toFixed(2)}</span>
-          <span>(${precioAnteriorDolares})</span>
-        </div>
-      )}
-    </div>
+      <div class="mt-1.5 mb-2.5 text-[12px]">
+        {tieneStock ? (
+          <span class="text-emerald-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Stock: {producto.stock}
+          </span>
+        ) : (
+          <span class="text-slate-500 font-medium">Sin stock</span>
+        )}
+      </div>
 
-    <!-- Indicador de Stock Sercoplus -->
-    <div class="flex items-center justify-between text-[11px]">
-      {tieneStock ? (
-        <span class="text-emerald-700 font-semibold flex items-center gap-1">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>En stock ({producto.stock} unids.)</span>
-        </span>
-      ) : (
-        <span class="text-red-600 font-semibold">Sin stock</span>
-      )}
-      <span class="text-[10px] text-slate-400">Garantía taller</span>
+      <button
+        type="button"
+        disabled={!tieneStock}
+        data-btn-agregar
+        data-producto={JSON.stringify({
+          id: producto.id,
+          sku: producto.sku,
+          nombre: producto.nombre,
+          slug: producto.slug,
+          precio: producto.precio,
+          stock: producto.stock,
+          foto: fotoReal || '',
+          categoria: producto.categoria,
+          disponible: producto.disponible
+        })}
+        class:list={[
+          'w-full py-2 px-3 rounded-md font-semibold text-[13px] flex items-center justify-center gap-1.5 transition-colors',
+          tieneStock
+            ? 'bg-[#e52e2e] hover:bg-[#cc1818] text-white cursor-pointer'
+            : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+        ]}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="21" r="1"></circle>
+          <circle cx="19" cy="21" r="1"></circle>
+          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+        </svg>
+        <span>{tieneStock ? 'Agregar' : 'Agotado'}</span>
+      </button>
     </div>
-
-    <!-- Botón Añadir al Carrito Estilo Sercoplus -->
-    <button
-      type="button"
-      disabled={!tieneStock}
-      data-btn-agregar
-      data-producto={JSON.stringify({
-        id: producto.id,
-        sku: producto.sku,
-        nombre: producto.nombre,
-        slug: producto.slug,
-        precio: producto.precio,
-        stock: producto.stock,
-        foto: fotoReal || '',
-        categoria: producto.categoria,
-        disponible: producto.disponible
-      })}
-      class:list={[
-        'w-full py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95',
-        tieneStock
-          ? 'bg-[#e52e2e] hover:bg-[#cc1818] text-white'
-          : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-      ]}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="8" cy="21" r="1"/>
-        <circle cx="19" cy="21" r="1"/>
-        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-      </svg>
-      <span>{tieneStock ? 'Añadir al carrito' : 'No disponible'}</span>
-    </button>
   </div>
 </article>
