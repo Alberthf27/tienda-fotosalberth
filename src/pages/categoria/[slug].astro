@@ -31,6 +31,35 @@ const simbolo = tienda.simbolo || 'S/';
 const totalProductos = productos.length;
 const conStock = productos.filter(p => p.disponible && p.stock > 0).length;
 
+// --- Estructura estilo Sercoplus -------------------------------------------
+// Las "familias" del POS no siempre son subcategorías: en Útiles y Librería hay
+// 158 familias para 235 productos (1.5 por familia), así que mostrar tiles de
+// subcategoría sería absurdo. Sólo se usa el modo Sercoplus cuando la categoría
+// tiene pocas familias y con varios productos cada una.
+const familiasConVarios = categoria.subcategorias.filter(s => s.total >= 2);
+const modoSubcategorias = familiasConVarios.length >= 3 && categoria.subcategorias.length <= 24;
+
+const tilesSubcategoria = (modoSubcategorias ? familiasConVarios.slice(0, 6) : []).map(sub => {
+  const primero = productos.find(p => p.familia === sub.nombre && p.fotos && p.fotos.length > 0);
+  return {
+    ...sub,
+    foto: primero?.fotos?.[0] ?? null,
+    fotoMini: primero?.fotos_mini?.[0] ?? null
+  };
+});
+
+// En modo catálogo directo (Útiles y Librería: 158 familias) no tiene sentido
+// pintar 158 chips: se muestran las líneas con varios productos y el resto queda
+// en el panel lateral de filtros.
+const chipsLineas = modoSubcategorias
+  ? categoria.subcategorias
+  : familiasConVarios.slice(0, 12);
+
+const imagenesBanner = productos
+  .filter(p => p.fotos && p.fotos.length > 0)
+  .slice(0, 3)
+  .map(p => p.fotos[0]);
+
 const tituloSEO = `${categoria.nombreCorto} (${totalProductos} productos)`;
 const descripcionSEO = `Compra ${categoria.nombreCorto} en FOTOSALBERTH, ${tienda.ciudad}. ${totalProductos} productos con precios en ${simbolo} y stock real. Pedido directo por WhatsApp, envíos y recojo en taller.`;
 
@@ -53,44 +82,10 @@ const jsonLd = {
   canonical={urlCanonical}
   jsonLd={jsonLd}
 >
-  <!-- Breadcrumb SEO (Sercoplus-style: Inicio › Categoría) -->
-  <nav aria-label="Miga de pan" class="mb-3 text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
-    <a href="/" class="font-semibold text-slate-700 hover:text-emerald-700 transition-colors">Inicio</a>
-    <span class="text-slate-300">›</span>
-    <span class="font-semibold text-slate-900">{categoria.nombreCorto}</span>
-  </nav>
+  <!-- Breadcrumb dentro del banner de categoría (ver columna de contenido) -->
 
-  <!-- Título de Categoría (estilo Sercoplus: nombre + conteo) -->
-  <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-    <div>
-      <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
-        {categoria.nombreCorto}
-      </h1>
-      <p class="text-xs text-slate-500 mt-1">
-        <span id="contador-categoria">Mostrando 1-{Math.min(12, totalProductos)} de {totalProductos} producto(s)</span>
-        <span class="text-slate-300 mx-1.5">•</span>
-        <span>Precios en {simbolo} (Soles)</span>
-      </p>
-    </div>
-
-    <!-- Orden (idéntico a Sercoplus) -->
-    <div class="flex items-center gap-2 text-xs">
-      <label for="orden-categoria" class="font-semibold text-slate-500 shrink-0">Ordenar por:</label>
-      <select
-        id="orden-categoria"
-        class="font-semibold text-slate-700 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-hidden cursor-pointer"
-      >
-        <option value="relevancia">Relevancia</option>
-        <option value="precio-menor">Precio: de más bajo a más alto</option>
-        <option value="precio-mayor">Precio: de más alto a más bajo</option>
-        <option value="nombre">Nombre, A a Z</option>
-        <option value="nombre-desc">Nombre, Z a A</option>
-        <option value="stock">Mayor stock</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Cuerpo: Sidebar Facets + Grilla (analogía directa con Sercoplus) -->
+  <!-- El título y el orden viven dentro de la columna de contenido,
+       como en Sercoplus: breadcrumb arriba, banner de categoría y toolbar. -->
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
 
     <!-- SIDEBAR DE FILTROS (facets) -->
@@ -108,7 +103,7 @@ const jsonLd = {
             Limpiar
           </button>
         </div>
-        <ul class="space-y-1">
+        <ul class="space-y-1 max-h-[420px] overflow-y-auto pr-1 scrollbar-thin">
           {categoria.subcategorias.map(sub => (
             <li>
               <label class="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer group">
@@ -209,6 +204,95 @@ const jsonLd = {
     <!-- GRILLA DE PRODUCTOS + PAGINACIÓN -->
     <section class="lg:col-span-3" aria-label={`Productos de ${categoria.nombreCorto}`}>
 
+      <!-- 1. Banner de categoría (Sercoplus: nombre + conteo + imágenes) -->
+      <div class="mb-4 bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="relative flex items-center justify-between gap-4 px-5 sm:px-7 py-6 min-h-[150px]">
+          <div class="relative z-10">
+            <nav aria-label="Miga de pan" class="mb-2 text-[12px] text-slate-500 flex items-center gap-1.5 flex-wrap">
+              <a href="/" class="font-semibold text-slate-600 hover:text-[#e52e2e] transition-colors">Inicio</a>
+              <span class="text-slate-300">›</span>
+              <span class="font-semibold text-slate-900">{categoria.nombreCorto}</span>
+            </nav>
+            <h1 class="text-[26px] sm:text-[32px] font-black tracking-tight text-slate-900 leading-none uppercase">
+              {categoria.nombreCorto}
+            </h1>
+            <p class="mt-2 text-[13px] text-slate-500">
+              <strong class="text-slate-700">{totalProductos}</strong> productos
+              <span class="text-slate-300 mx-1">·</span>
+              <strong class="text-emerald-700">{conStock}</strong> con stock
+              <span class="text-slate-300 mx-1">·</span>
+              {modoSubcategorias ? `${categoria.subcategorias.length} líneas` : 'catálogo completo'}
+            </p>
+          </div>
+
+          {imagenesBanner.length > 0 && (
+            <div class="relative z-10 hidden sm:flex items-center gap-2 shrink-0">
+              {imagenesBanner.map(foto => (
+                <img
+                  src={foto}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  width="120"
+                  height="120"
+                  class="w-[86px] h-[86px] lg:w-[104px] lg:h-[104px] object-contain bg-white rounded-lg border border-slate-100 p-1"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <!-- 2. Subcategorías como tiles (sólo cuando la estructura lo permite) -->
+      {modoSubcategorias && tilesSubcategoria.length > 0 && (
+        <div class="mb-4 bg-white rounded-2xl border border-slate-200 p-4">
+          <h2 class="text-[12px] font-black uppercase tracking-wider text-slate-900 mb-3">Subcategorías</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+            {tilesSubcategoria.map(sub => (
+              <button
+                type="button"
+                data-chip-linea={sub.slug}
+                class="chip-linea-tile group flex flex-col items-center gap-1.5 p-2 rounded-xl border border-slate-100 hover:border-[#e52e2e] hover:bg-red-50/30 transition-colors cursor-pointer"
+              >
+                <span class="w-full aspect-square flex items-center justify-center bg-white rounded-lg overflow-hidden">
+                  {sub.foto ? (
+                    <img src={sub.foto} alt={sub.nombre} loading="lazy" decoding="async" width="268" height="268" class="w-full h-full object-contain p-1" />
+                  ) : (
+                    <span class="text-slate-300 text-2xl">📦</span>
+                  )}
+                </span>
+                <span class="text-[11px] font-semibold text-slate-700 group-hover:text-[#e52e2e] text-center leading-tight line-clamp-2 min-h-[1.8rem]">
+                  {sub.nombre}
+                </span>
+                <span class="text-[10px] text-slate-400 font-mono">{sub.total}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- 3. Toolbar: conteo + orden (Sercoplus: "144 productos ... Ordenar por") -->
+      <div class="mb-3 bg-white rounded-xl border border-slate-200 px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <span id="contador-categoria" class="text-[12px] font-semibold text-slate-600">
+          Mostrando 1-{Math.min(12, totalProductos)} de {totalProductos} productos
+        </span>
+        <div class="flex items-center gap-2 text-[12px]">
+          <label for="orden-categoria" class="font-semibold text-slate-500 shrink-0">Ordenar por:</label>
+          <select
+            id="orden-categoria"
+            class="font-semibold text-slate-700 bg-white hover:bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-hidden cursor-pointer text-[12px]"
+          >
+            <option value="relevancia">Relevancia</option>
+            <option value="precio-menor">Precio: de más bajo a más alto</option>
+            <option value="precio-mayor">Precio: de más alto a más bajo</option>
+            <option value="nombre">Nombre, A a Z</option>
+            <option value="nombre-desc">Nombre, Z a A</option>
+            <option value="stock">Mayor stock</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Chips de líneas activas (mobile-friendly, estilo Sercoplus subcategorías) -->
       <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none" id="chips-lineas">
         <button
@@ -218,7 +302,7 @@ const jsonLd = {
         >
           Todos ({totalProductos})
         </button>
-        {categoria.subcategorias.map(sub => (
+        {chipsLineas.map(sub => (
           <button
             type="button"
             data-chip-linea={sub.slug}
@@ -231,7 +315,7 @@ const jsonLd = {
 
       <div
         id="grilla-categoria"
-        class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4"
+        class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5"
         data-pagina="1"
         data-por-pagina="12"
       >
@@ -274,7 +358,7 @@ const jsonLd = {
   const tarjetas = Array.from(document.querySelectorAll('.tarjeta-producto'));
   const checkboxesLinea = Array.from(document.querySelectorAll('.filtro-linea'));
   const radiosPrecio = Array.from(document.querySelectorAll('input[name="rango-precio"]'));
-  const chipsLinea = Array.from(document.querySelectorAll('.chip-linea'));
+  const chipsLinea = Array.from(document.querySelectorAll('.chip-linea, .chip-linea-tile'));
 
   let lineasActivas = new Set(); // slugs de familias
   let soloStock = false;
@@ -431,6 +515,16 @@ const jsonLd = {
     chipsLinea.forEach(chip => {
       const slug = chip.getAttribute('data-chip-linea') || '';
       const activo = slugs.length === 0 ? slug === '' : slugs.includes(slug);
+
+      // Los tiles de subcategoría (Sercoplus) se marcan con un anillo, no con
+      // las clases de color de los chips de texto.
+      if (chip.classList.contains('chip-linea-tile')) {
+        chip.classList.toggle('ring-2', activo && slug !== '');
+        chip.classList.toggle('ring-[#e52e2e]', activo && slug !== '');
+        chip.classList.toggle('bg-red-50', activo && slug !== '');
+        return;
+      }
+
       chip.classList.toggle('active', activo && (slug === '' ? slugs.length === 0 : true));
       if (activo && slug !== '') {
         chip.classList.add('bg-emerald-700', 'text-white', 'font-bold');
