@@ -38,10 +38,53 @@ export async function descargarCatalogoDesdeApi(apiUrl: string): Promise<Catalog
   }
 }
 
+/**
+ * Lee el catálogo que consume la tienda.
+ *
+ * Se prefiere `data/catalogo.web.json` (generado por scripts/preparar-imagenes.mjs):
+ * apunta a fotos WebP en `public/img/productos` en vez de llevar el base64 dentro
+ * del HTML. Si ese archivo no existe o no coincide en cantidad de productos con el
+ * snapshot, se usa `data/catalogo.json` tal cual (con las fotos embebidas).
+ */
+export function leerCatalogoLocal(raiz: string): CatalogoData | null {
+  const rutaSnapshot = path.join(raiz, 'data', 'catalogo.json');
+  const rutaLigera = path.join(raiz, 'data', 'catalogo.web.json');
+
+  const leer = (ruta: string): CatalogoData | null => {
+    try {
+      if (!fs.existsSync(ruta)) return null;
+      return JSON.parse(fs.readFileSync(ruta, 'utf8')) as CatalogoData;
+    } catch (e: any) {
+      console.error(`[Catalogo] ${path.basename(ruta)} corrupto: ${e.message}`);
+      return null;
+    }
+  };
+
+  const snapshot = leer(rutaSnapshot);
+  const ligero = leer(rutaLigera);
+
+  if (ligero && snapshot && ligero.productos.length === snapshot.productos.length) {
+    return ligero;
+  }
+
+  if (ligero && !snapshot) return ligero;
+  return snapshot;
+}
+
 export async function obtenerCatalogo(opciones?: { raiz?: string; apiUrl?: string }): Promise<CatalogoData> {
   const raiz = opciones?.raiz || process.cwd();
-  const rutaSnapshot = path.join(raiz, 'data', 'catalogo.json');
   const apiUrl = opciones?.apiUrl || process.env.CATALOGO_API_URL || 'http://159.112.128.144:3000/api/public/catalogo';
+
+  // Durante la compilación se usa lo que ya está en disco: las imágenes WebP se
+  // generan antes (npm run imagenes) y descargar de nuevo el catálogo dejaría el
+  // HTML apuntando a fotos que quizá no existen todavía. La sincronización es
+  // explícita: `npm run sync` y luego `npm run build`.
+  if (process.env.CATALOGO_OFFLINE !== '0') {
+    const local = leerCatalogoLocal(raiz);
+    if (local && local.productos.length > 0) {
+      return local;
+    }
+  }
 
   let catalogoFresquito: CatalogoData | null = null;
 
@@ -53,26 +96,20 @@ export async function obtenerCatalogo(opciones?: { raiz?: string; apiUrl?: strin
 
   if (catalogoFresquito && catalogoFresquito.productos.length > 0) {
     try {
+      const rutaSnapshot = path.join(raiz, 'data', 'catalogo.json');
       fs.mkdirSync(path.dirname(rutaSnapshot), { recursive: true });
       fs.writeFileSync(rutaSnapshot, JSON.stringify(catalogoFresquito, null, 2), 'utf8');
       console.log(`[Catalogo] ✓ Catálogo actualizado desde VPS (${catalogoFresquito.productos.length} productos). Snapshot guardado.`);
-      return catalogoFresquito;
     } catch (err: any) {
       console.warn('[Catalogo] No se pudo guardar snapshot local:', err.message);
-      return catalogoFresquito;
     }
+    return catalogoFresquito;
   }
 
-  // Fallback al snapshot local
-  if (fs.existsSync(rutaSnapshot)) {
-    try {
-      const contenido = fs.readFileSync(rutaSnapshot, 'utf8');
-      const data = JSON.parse(contenido) as CatalogoData;
-      console.log(`[Catalogo] ℹ Usando snapshot local de respaldo (${data.productos.length} productos).`);
-      return data;
-    } catch (e: any) {
-      console.error('[Catalogo] Snapshot corrupto:', e.message);
-    }
+  const local = leerCatalogoLocal(raiz);
+  if (local) {
+    console.log(`[Catalogo] ℹ Usando snapshot local de respaldo (${local.productos.length} productos).`);
+    return local;
   }
 
   // Fallback de emergencia si ni la API ni el snapshot existen

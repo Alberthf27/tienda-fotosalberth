@@ -4,3 +4,7 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Generados por scripts/preparar-imagenes.mjs (se rehacen en cada build)
+/public/img/productos/
+/data/catalogo.web.json

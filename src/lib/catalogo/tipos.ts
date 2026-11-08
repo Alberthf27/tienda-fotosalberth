@@ -29,6 +29,8 @@ export interface ProductoCatalogo {
   disponible: boolean;
   descripcion: string;
   fotos: string[];
+  /** Versión reducida (268 px) de cada foto, para `srcset`. */
+  fotos_mini?: string[];
   specs: Record<string, string> | null;
 }
 

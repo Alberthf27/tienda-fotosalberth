@@ -10,6 +10,7 @@ const { producto, simbolo = 'S/' } = Astro.props;
 const tieneStock = producto.stock > 0 && producto.disponible;
 const tieneFotoReal = Boolean(producto.fotos && producto.fotos.length > 0);
 const fotoReal = tieneFotoReal ? producto.fotos[0] : null;
+const fotoMini = producto.fotos_mini?.[0] ?? null;
 const tieneOferta = Boolean(producto.precio_anterior && producto.precio_anterior > producto.precio);
 const porcentajeDescuento = tieneOferta && producto.precio_anterior
   ? Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100)
@@ -54,8 +55,13 @@ const precioAnteriorDolares = producto.precio_anterior ? (producto.precio_anteri
       {tieneFotoReal ? (
         <img
           src={fotoReal}
+          srcset={fotoMini ? `${fotoMini} 268w, ${fotoReal} 400w` : undefined}
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
           alt={producto.nombre}
           loading="lazy"
+          decoding="async"
+          width="400"
+          height="400"
           class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
         />
       ) : (
